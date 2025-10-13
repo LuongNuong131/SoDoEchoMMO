@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EchoMMO GameFi System Architecture</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <style>
+      /* Google Font Import */
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        scroll-behavior: smooth; /* Thêm hiệu ứng cuộn mượt */
+      }
+
+      :root {
+        --primary: #667eea;
+        --secondary: #764ba2;
+        --accent: #f093fb;
+        --dark: #1a1a2e;
+        --light: #f8f9fa;
+        --success: #4ade80;
+        --warning: #fbbf24;
+        --info: #60a5fa;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #0f0c29 0%,
+          #302b63 50%,
+          #24243e 100%
+        );
+        color: var(--light);
+        overflow-x: hidden;
+        line-height: 1.6;
+      }
+
+      /* Animated Background */
+      .bg-animation {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        opacity: 0.1;
+      }
+
+      .bg-animation span {
+        position: absolute;
+        display: block;
+        width: 20px;
+        height: 20px;
+        background: rgba(102, 126, 234, 0.5);
+        animation: float 25s infinite linear;
+        border-radius: 50%;
+        bottom: -150px; /* Bắt đầu từ dưới màn hình */
+      }
+
+      .bg-animation span:nth-child(1) {
+        left: 10%;
+        animation-delay: 0s;
+      }
+      .bg-animation span:nth-child(2) {
+        left: 20%;
+        animation-delay: 2s;
+        width: 30px;
+        height: 30px;
+      }
+      .bg-animation span:nth-child(3) {
+        left: 30%;
+        animation-delay: 4s;
+      }
+      .bg-animation span:nth-child(4) {
+        left: 40%;
+        animation-delay: 6s;
+        width: 25px;
+        height: 25px;
+      }
+      .bg-animation span:nth-child(5) {
+        left: 50%;
+        animation-delay: 8s;
+      }
+      .bg-animation span:nth-child(6) {
+        left: 60%;
+        animation-delay: 10s;
+        width: 35px;
+        height: 35px;
+      }
+      .bg-animation span:nth-child(7) {
+        left: 70%;
+        animation-delay: 12s;
+      }
+      .bg-animation span:nth-child(8) {
+        left: 80%;
+        animation-delay: 14s;
+        width: 28px;
+        height: 28px;
+      }
+      .bg-animation span:nth-child(9) {
+        left: 90%;
+        animation-delay: 16s;
+      }
+
+      @keyframes float {
+        0% {
+          transform: translateY(0) rotate(0deg);
+          opacity: 0;
+        }
+        10% {
+          opacity: 1;
+        }
+        90% {
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(-120vh) rotate(360deg);
+          opacity: 0;
+        }
+      }
+
+      /* Navigation */
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: rgba(26, 26, 46, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px); /* Hỗ trợ Safari */
+        border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+        padding: 1rem 0;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+
+      .nav-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        font-size: 1.8rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+        list-style: none;
+      }
+
+      .nav-links a {
+        color: var(--light);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        position: relative;
+        padding: 0.5rem 0;
+      }
+
+      .nav-links a::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        transition: width 0.3s ease;
+      }
+
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: var(--accent);
+      }
+
+      .nav-links a:hover::after,
+      .nav-links a.active::after {
+        width: 100%;
+      }
+
+      /* Container */
+      .container {
+        position: relative;
+        z-index: 1;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 3rem 2rem;
+      }
+
+      /* Hero Section */
+      .hero {
+        text-align: center;
+        padding: 4rem 0;
+        margin-bottom: 4rem;
+      }
+
+      .hero h1 {
+        font-size: 4rem;
+        font-weight: 900;
+        background: linear-gradient(
+          135deg,
+          #667eea 0%,
+          #f093fb 50%,
+          #764ba2 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+        animation: fadeInDown 1s ease;
+      }
+
+      .hero p {
+        font-size: 1.3rem;
+        color: rgba(248, 249, 250, 0.7);
+        margin-bottom: 2rem;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+        animation: fadeInUp 1s ease 0.2s both;
+      }
+
+      .stats {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        margin-top: 3rem;
+        animation: fadeInUp 1s ease 0.4s both;
+      }
+
+      .stat-item {
+        text-align: center;
+        padding: 1.5rem 2rem;
+        background: rgba(102, 126, 234, 0.1);
+        border-radius: 15px;
+        border: 1px solid rgba(102, 126, 234, 0.3);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        width: 200px;
+      }
+
+      .stat-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+      }
+
+      .stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .stat-label {
+        color: rgba(248, 249, 250, 0.6);
+        margin-top: 0.5rem;
+      }
+
+      /* Section */
+      .section {
+        margin-bottom: 4rem;
+        padding-top: 60px; /* Offset for sticky nav */
+        margin-top: -60px; /* Negative margin to keep position correct */
+        animation: fadeIn 1s ease;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+      }
+
+      .section-number {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 800;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        flex-shrink: 0;
+      }
+
+      .section h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--light);
+      }
+
+      /* Card */
+      .card {
+        background: rgba(26, 26, 46, 0.8);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 20px;
+        padding: 2.5rem;
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 25px 70px rgba(102, 126, 234, 0.3);
+        border-color: rgba(102, 126, 234, 0.5);
+      }
+
+      .diagram-wrapper {
+        background: rgba(15, 12, 41, 0.6);
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 2rem 0;
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        overflow-x: auto;
+      }
+
+      pre.mermaid {
+        background: transparent;
+        text-align: center;
+        padding: 1rem;
+      }
+
+      /* Info Box */
+      .info-box {
+        background: linear-gradient(
+          135deg,
+          rgba(102, 126, 234, 0.1) 0%,
+          rgba(118, 75, 162, 0.1) 100%
+        );
+        border-left: 4px solid var(--primary);
+        border-radius: 12px;
+        padding: 2rem;
+        margin: 2rem 0;
+        backdrop-filter: blur(10px);
+      }
+
+      .info-box h3 {
+        color: var(--accent);
+        margin-bottom: 1rem;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .info-box p,
+      .info-box ul {
+        color: rgba(248, 249, 250, 0.8);
+        line-height: 1.8;
+        padding-left: 20px;
+      }
+
+      .info-box li {
+        margin-bottom: 0.5rem;
+      }
+
+      .info-box strong {
+        color: var(--info);
+      }
+
+      /* Features Grid */
+      .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+      }
+
+      .feature-card {
+        background: rgba(26, 26, 46, 0.6);
+        border-radius: 15px;
+        padding: 2rem;
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        transition: all 0.3s ease;
+        text-align: center;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+        border-color: var(--primary);
+      }
+
+      .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: var(--primary);
+      }
+
+      .feature-card h4 {
+        color: var(--accent);
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+      }
+
+      .feature-card p {
+        color: rgba(248, 249, 250, 0.7);
+      }
+
+      /* Tab System */
+      .tabs {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+      }
+
+      .tab {
+        padding: 1rem 2rem;
+        background: transparent;
+        border: none;
+        color: rgba(248, 249, 250, 0.6);
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .tab.active {
+        color: var(--accent);
+      }
+
+      .tab.active::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+      }
+
+      .tab:hover {
+        color: var(--light);
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+        animation: fadeIn 0.5s ease;
+      }
+
+      /* Footer */
+      footer {
+        text-align: center;
+        padding: 3rem 0;
+        margin-top: 5rem;
+        border-top: 1px solid rgba(102, 126, 234, 0.2);
+      }
+
+      footer p {
+        color: rgba(248, 249, 250, 0.5);
+        margin: 0.5rem 0;
+      }
+
+      /* Animations */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Scroll to Top */
+      .scroll-top {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        opacity: 0;
+        visibility: hidden; /* Thêm visibility để ẩn hoàn toàn */
+        transform: translateY(20px); /* Hiệu ứng trồi lên */
+        transition: all 0.4s ease;
+        z-index: 1000;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: var(--light);
+        font-size: 1.2rem;
+      }
+
+      .scroll-top.visible {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .scroll-top:hover {
+        transform: translateY(-5px) scale(1.1);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .hero h1 {
+          font-size: 2.5rem;
+        }
+
+        .nav-links {
+          display: none; /* Sẽ cần JS để làm menu hamburger */
+        }
+
+        .stats {
+          flex-direction: column;
+          gap: 1.5rem;
+          align-items: center;
+        }
+
+        .section-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.5rem;
+        }
+
+        .card,
+        .diagram-wrapper {
+          padding: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-animation">
+      <span></span><span></span><span></span><span></span><span></span
+      ><span></span><span></span><span></span><span></span>
+    </div>
+
+    <nav>
+      <div class="nav-container">
+        <div class="logo"><i class="fa-solid fa-gamepad"></i> EchoMMO</div>
+        <ul class="nav-links">
+          <li><a href="#overview">Tổng quan</a></li>
+          <li><a href="#dfd">DFD</a></li>
+          <li><a href="#activity">Activity</a></li>
+          <li><a href="#class">Class Diagram</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container">
+      <section class="hero" id="overview">
+        <h1>GameFi System Architecture</h1>
+        <p>
+          Khám phá kiến trúc chi tiết của EchoMMO - nền tảng game thế hệ mới kết
+          hợp giữa thể loại MMO hấp dẫn và công nghệ Blockchain & NFT đột phá.
+        </p>
+
+        <div class="stats">
+          <div class="stat-item">
+            <div class="stat-number">9</div>
+            <div class="stat-label">Core Tables</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">3</div>
+            <div class="stat-label">Main Systems</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">∞</div>
+            <div class="stat-label">Possibilities</div>
+          </div>
+        </div>
+      </section>
+
+      <div class="features">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-scroll"></i></div>
+          <h4>Quest System</h4>
+          <p>
+            Hệ thống nhiệm vụ phong phú với phần thưởng đa dạng và cơ chế
+            progression hấp dẫn.
+          </p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-store"></i></div>
+          <h4>Market Place</h4>
+          <p>
+            Chợ giao dịch P2P với cơ chế niêm yết, tìm kiếm và thanh toán an
+            toàn.
+          </p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-wallet"></i></div>
+          <h4>Wallet System</h4>
+          <p>Quản lý tài sản in-game và crypto với bảo mật đa lớp.</p>
+        </div>
+      </div>
+
+      <section class="section" id="dfd">
+        <div class="section-header">
+          <div class="section-number">01</div>
+          <h2>Data Flow Diagram - Market System</h2>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" data-tab="dfd-level1">Level 1</button>
+          <button class="tab" data-tab="dfd-level2">Level 2</button>
+        </div>
+
+        <div id="dfd-level1" class="tab-content active">
+          <div class="card">
+            <div class="diagram-wrapper">
+              <pre class="mermaid">
+graph TB
+    Player[🧑‍🚀 Player]
+    Admin[👑 Admin]
+    
+    P5[5. Market System]
+    P4[4. Wallet Mgt]
+    P6[6. System Admin]
+    Core[System Core]
+    
+    DS_Inv[(🗃️ Inventory)]
+    
+    Player -->|Login, Mua/Bán| P5
+    Admin -->|Quản lý| P6
+    P5 -->|Cập nhật Inventory| DS_Inv
+    P5 -->|Cập nhật Ví| P4
+    P6 -->|Lệnh quản trị| Core
+    
+    style Player fill:#667eea,stroke:#f093fb,stroke-width:3px,color:#fff
+    style Admin fill:#fbbf24,stroke:#f59e0b,stroke-width:3px,color:#000
+    style DS_Inv fill:#ec4899,stroke:#db2777,stroke-width:2px,color:#fff
+    style P5 fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+    style P4 fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style P6 fill:#06b6d4,stroke:#0891b2,stroke-width:2px,color:#fff
+                        </pre
+              >
+            </div>
+            <div class="info-box">
+              <h3>
+                <i class="fa-solid fa-chart-simple"></i> Level 1 - Tổng quan hệ
+                thống
+              </h3>
+              <ul>
+                <li>
+                  <strong>Tác nhân chính:</strong> Player và Admin tương tác với
+                  Market System.
+                </li>
+                <li>
+                  <strong>Luồng dữ liệu:</strong> Kết nối giữa Market, Inventory
+                  và Wallet.
+                </li>
+                <li>
+                  <strong>Mục đích:</strong> Cung cấp cái nhìn tổng quát về kiến
+                  trúc hệ thống.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div id="dfd-level2" class="tab-content">
+          <div class="card">
+            <div class="diagram-wrapper">
+              <pre class="mermaid">
+graph TB
+    Player2[🧑‍🚀 Player]
+    
+    P5_1[5.1 Đăng bán]
+    P5_2[5.2 Tìm kiếm]
+    P5_3[5.3 Mua vật phẩm]
+    P5_4[5.4 Hủy niêm yết]
+    P5_5[5.5 Thông báo]
+    
+    DS_Inv2[(🗃️ user_item)]
+    DS_Market[(🏪 market_listing)]
+    DS_Trans[(💸 transaction_history)]
+    
+    Player2 -->|Thông tin vật phẩm| P5_1
+    Player2 -->|Từ khóa, bộ lọc| P5_2
+    Player2 -->|Chọn mua| P5_3
+    Player2 -->|Yêu cầu hủy| P5_4
+    
+    P5_1 -->|Trừ vật phẩm| DS_Inv2
+    P5_1 -->|Tạo niêm yết| DS_Market
+    
+    P5_2 -->|Truy vấn| DS_Market
+    
+    P5_3 -->|Cập nhật trạng thái| DS_Market
+    P5_3 -->|Thêm vật phẩm| DS_Inv2
+    P5_3 -->|Ghi giao dịch| DS_Trans
+    
+    P5_4 -->|Xóa niêm yết| DS_Market
+    P5_4 -->|Hoàn trả vật phẩm| DS_Inv2
+    
+    DS_Trans -->|Dữ liệu thông báo| P5_5
+    P5_5 -->|Gửi thông báo| Player2
+
+    style Player2 fill:#667eea,stroke:#f093fb,stroke-width:3px,color:#fff
+    style DS_Inv2 fill:#ec4899,stroke:#db2777,stroke-width:2px,color:#fff
+    style DS_Market fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style DS_Trans fill:#8b5cf6,stroke:#7c3aed,stroke-width:2px,color:#fff
+    style P5_1 fill:#06b6d4,stroke:#0891b2,stroke-width:2px,color:#fff
+    style P5_2 fill:#06b6d4,stroke:#0891b2,stroke-width:2px,color:#fff
+    style P5_3 fill:#06b6d4,stroke:#0891b2,stroke-width:2px,color:#fff
+    style P5_4 fill:#06b6d4,stroke:#0891b2,stroke-width:2px,color:#fff
+    style P5_5 fill:#06b6d4,stroke:#0891b2,stroke-width:2px,color:#fff
+                        </pre
+              >
+            </div>
+            <div class="info-box">
+              <h3>
+                <i class="fa-solid fa-magnifying-glass-chart"></i> Level 2 - Chi
+                tiết Market System
+              </h3>
+              <p><strong>5 chức năng chính được phân rã:</strong></p>
+              <ul>
+                <li><strong>Đăng bán:</strong> Player đưa items lên market.</li>
+                <li><strong>Tìm kiếm:</strong> Filter và search items.</li>
+                <li><strong>Mua vật phẩm:</strong> Xử lý giao dịch.</li>
+                <li>
+                  <strong>Hủy niêm yết:</strong> Hủy listing và hoàn trả vật
+                  phẩm.
+                </li>
+                <li><strong>Thông báo:</strong> Gửi thông báo real-time.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="activity">
+        <div class="section-header">
+          <div class="section-number">02</div>
+          <h2>Activity Diagram - Quest Completion Flow</h2>
+        </div>
+
+        <div class="card">
+          <div class="diagram-wrapper">
+            <pre class="mermaid">
+flowchart TD
+    A([🎮 Bắt đầu]) --> B{Mở giao diện<br/>nhiệm vụ}
+    B --> C[Chọn 'Nhận nhiệm vụ']
+    C --> F[💾 Lưu trạng thái<br/>'In Progress']
+    F --> D[⚔️ Thực hiện<br/>yêu cầu trong game]
+    D --> E{📋 Trả nhiệm vụ}
+    E --> G{✅ Điều kiện<br/>hoàn thành?}
+    G -->|Chưa đủ| D
+    G -->|Hoàn thành| H[📝 Cập nhật trạng thái<br/>'Completed']
+    H --> I[🎁 Bắt đầu Trao thưởng]
+    I --> J[💰 Cộng Gold]
+    I --> K[⭐ Cộng EXP]
+    I --> L[🎒 Thêm Vật phẩm]
+    J --> M[✨ Kết thúc Trao thưởng]
+    K --> M
+    L --> M
+    M --> N[📬 Gửi thông báo]
+    N --> Z([🏁 Kết thúc])
+    
+    style A fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+    style Z fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
+    style G fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
+    style I fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+    style M fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
+                    </pre>
+          </div>
+
+          <div class="info-box">
+            <h3>
+              <i class="fa-solid fa-person-running"></i> Quy trình hoàn thành
+              nhiệm vụ
+            </h3>
+            <p><strong>Các bước chính trong luồng hoạt động:</strong></p>
+            <ul>
+              <li>1️⃣ <strong>Khởi tạo:</strong> Player mở UI và nhận quest.</li>
+              <li>
+                2️⃣ <strong>Tiến hành:</strong> Thực hiện yêu cầu trong game
+                (combat, collect, explore).
+              </li>
+              <li>
+                3️⃣ <strong>Kiểm tra:</strong> Hệ thống xác thực điều kiện hoàn
+                thành.
+              </li>
+              <li>
+                4️⃣ <strong>Trao thưởng:</strong> Phân phối song song các phần
+                thưởng (Gold, EXP, Items).
+              </li>
+              <li>
+                5️⃣ <strong>Thông báo:</strong> Gửi thông báo thành công cho
+                player.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="class">
+        <div class="section-header">
+          <div class="section-number">03</div>
+          <h2>Class Diagram - Database Architecture</h2>
+        </div>
+
+        <div class="card">
+          <div class="diagram-wrapper">
+            <pre class="mermaid">
+classDiagram
+    class user {
+        +INT user_id PK
+        +NVARCHAR username
+        +NVARCHAR password_hash
+        +NVARCHAR email
+        +DATETIME created_at
+    }
+
+    class wallet {
+        +INT wallet_id PK
+        +INT user_id FK
+        +DECIMAL balance
+        +DATETIME last_updated
+    }
+    
+    class character_game {
+        +INT character_id PK
+        +INT user_id FK
+        +NVARCHAR name
+        +INT level
+        +INT experience
+        +DATETIME created_at
+    }
+
+    class item {
+        +INT item_id PK
+        +NVARCHAR name
+        +NVARCHAR rarity
+        +DECIMAL base_price
+        +NVARCHAR description
+    }
+    
+    class user_item {
+        +INT user_item_id PK
+        +INT user_id FK
+        +INT item_id FK
+        +INT quantity
+        +DATETIME acquired_at
+    }
+
+    class quest {
+        +INT quest_id PK
+        +NVARCHAR name
+        +NVARCHAR description
+        +DECIMAL reward_gold
+        +INT reward_exp
+        +INT required_level
+    }
+
+    class user_quest {
+        +INT user_quest_id PK
+        +INT user_id FK
+        +INT quest_id FK
+        +NVARCHAR status
+        +DATETIME started_at
+        +DATETIME completed_at
+    }
+    
+    class market_listing {
+        +INT listing_id PK
+        +INT seller_id FK
+        +INT item_id FK
+        +INT quantity
+        +DECIMAL price
+        +NVARCHAR status
+        +DATETIME listed_at
+    }
+
+    class transaction_history {
+        +INT transaction_id PK
+        +INT buyer_id FK
+        +INT listing_id FK
+        +DECIMAL amount
+        +NVARCHAR transaction_type
+        +DATETIME transaction_date
+    }
+
+    user "1" --> "1" wallet : owns
+    user "1" --> "0..*" character_game : has
+    user "1" --> "0..*" user_item : owns
+    item "1" --> "0..*" user_item : contained in
+    user "1" --> "0..*" user_quest : performs
+    quest "1" --> "0..*" user_quest : performed by
+    user "1" --> "0..*" market_listing : creates
+    item "1" --> "0..*" market_listing : is listed in
+    market_listing "1" --> "0..1" transaction_history : results in
+    user "1" --> "0..*" transaction_history : initiates
+                    </pre
+            >
+          </div>
+          <div class="info-box">
+            <h3><i class="fa-solid fa-database"></i> Cấu trúc Database</h3>
+            <p>
+              Sơ đồ lớp thể hiện kiến trúc database của hệ thống với 9 bảng
+              chính và các mối quan hệ:
+            </p>
+            <ul>
+              <li><strong>user:</strong> Thông tin người dùng cơ bản.</li>
+              <li>
+                <strong>wallet:</strong> Ví tiền ảo, liên kết 1-1 với user.
+              </li>
+              <li>
+                <strong>character_game:</strong> Các nhân vật mà user sở hữu.
+              </li>
+              <li>
+                <strong>item & user_item:</strong> Bảng định nghĩa vật phẩm và
+                bảng inventory của user.
+              </li>
+              <li>
+                <strong>quest & user_quest:</strong> Bảng định nghĩa nhiệm vụ và
+                bảng tiến trình của user.
+              </li>
+              <li>
+                <strong>market_listing:</strong> Các vật phẩm được đăng bán trên
+                chợ.
+              </li>
+              <li>
+                <strong>transaction_history:</strong> Lịch sử giao dịch mua bán.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="scroll-top" id="scrollTopBtn">
+      <i class="fa-solid fa-arrow-up"></i>
+    </div>
+
+    <footer>
+      <p><strong>Dự án EchoMMO</strong> - Hệ thống GameFi MMO</p>
+      <p>Tài liệu Phân tích & Thiết kế hệ thống</p>
+    </footer>
+
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: "dark",
+        themeVariables: {
+          primaryColor: "#1a1a2e",
+          primaryTextColor: "#f8f9fa",
+          primaryBorderColor: "#667eea",
+          lineColor: "#764ba2",
+          secondaryColor: "#302b63",
+          tertiaryColor: "#1a1a2e",
+        },
+      });
+    </script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // --- Tab System Logic ---
+        const tabs = document.querySelectorAll(".tab");
+        const tabContents = document.querySelectorAll(".tab-content");
+
+        tabs.forEach((tab) => {
+          tab.addEventListener("click", () => {
+            // Remove active class from all tabs and contents
+            tabs.forEach((item) => item.classList.remove("active"));
+            tabContents.forEach((item) => item.classList.remove("active"));
+
+            // Add active class to clicked tab and corresponding content
+            tab.classList.add("active");
+            const target = document.getElementById(tab.dataset.tab);
+            if (target) {
+              target.classList.add("active");
+            }
+          });
+        });
+
+        // --- Scroll to Top Button Logic ---
+        const scrollTopBtn = document.getElementById("scrollTopBtn");
+
+        window.addEventListener("scroll", () => {
+          if (window.scrollY > 300) {
+            scrollTopBtn.classList.add("visible");
+          } else {
+            scrollTopBtn.classList.remove("visible");
+          }
+        });
+
+        scrollTopBtn.addEventListener("click", () => {
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        });
+
+        // --- Active Nav Link on Scroll ---
+        const sections = document.querySelectorAll(".section");
+        const navLinks = document.querySelectorAll(".nav-links a");
+
+        window.addEventListener("scroll", () => {
+          let current = "";
+          sections.forEach((section) => {
+            const sectionTop = section.offsetTop;
+            if (pageYOffset >= sectionTop - 100) {
+              current = section.getAttribute("id");
+            }
+          });
+
+          navLinks.forEach((a) => {
+            a.classList.remove("active");
+            if (a.getAttribute("href").substring(1) === current) {
+              a.classList.add("active");
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
