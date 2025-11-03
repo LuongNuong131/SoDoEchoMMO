@@ -1030,6 +1030,121 @@ flowchart TD
     RedirectHome --> End
             </pre>
             </div>
+            <h3>4.3. Quên mật khẩu (OTP qua Email)</h3>
+            <div class="diagram-container">
+              <pre class="mermaid">
+flowchart TD
+    Start([🔑 Bắt đầu Quên MK]) --> OpenForgot[Mở trang /forgot-password]
+    OpenForgot --> FillEmail[📧 Nhập Email]
+    FillEmail --> SubmitEmail[Nhấn 'Gửi mã OTP']
+    SubmitEmail --> FindUser{🔍 Tìm User<br/>theo email?}
+    
+    FindUser -->|Không tìm thấy| ErrorNotFound[❌ Lỗi: Email không tồn tại]
+    ErrorNotFound --> FillEmail
+    
+    FindUser -->|Tìm thấy| BeginOTP[(🔄 BEGIN TRANSACTION)]
+    BeginOTP --> GenOTP[🎲 Sinh mã OTP ngẫu nhiên<br/>4 chữ số 0000-9999]
+    GenOTP --> SaveOTP[💾 Lưu vào database<br/>- otp_code<br/>- otp_expiry = now + 5 phút]
+    SaveOTP --> SendEmail[📮 Gửi email chứa OTP<br/>qua JavaMailSender]
+    SendEmail --> CheckSent{✓ Gửi email<br/>thành công?}
+    
+    CheckSent -->|Thất bại| RollbackOTP[(❌ ROLLBACK)]
+    RollbackOTP --> ErrorSend[❌ Lỗi: Không thể gửi email]
+    ErrorSend --> FillEmail
+    
+    CheckSent -->|Thành công| CommitOTP[(✅ COMMIT)]
+    CommitOTP --> SuccessMsg[✔️ Đã gửi mã OTP đến email]
+    SuccessMsg --> RedirectVerify[🔄 Chuyển đến /verify-otp]
+    
+    RedirectVerify --> ShowVerifyForm[📝 Hiện form xác thực OTP]
+    ShowVerifyForm --> FillOTPForm[Điền:<br/>- Mã OTP 4 số<br/>- Mật khẩu mới<br/>- Xác nhận mật khẩu]
+    FillOTPForm --> SubmitOTP[Nhấn 'Đổi mật khẩu']
+    
+    SubmitOTP --> ValidateOTP{✓ Kiểm tra OTP}
+    ValidateOTP -->|OTP sai| ErrorOTPWrong[❌ Lỗi: Mã OTP không đúng]
+    ErrorOTPWrong --> FillOTPForm
+    
+    ValidateOTP -->|OTP đúng| CheckExpiry{✓ OTP còn<br/>hiệu lực?}
+    CheckExpiry -->|Đã hết hạn| ErrorExpired[❌ Lỗi: Mã OTP đã hết hạn<br/>Vui lòng gửi lại]
+    ErrorExpired --> OpenForgot
+    
+    CheckExpiry -->|Còn hạn| ValidatePassword{✓ Password<br/>khớp confirm?}
+    ValidatePassword -->|Không khớp| ErrorPassMismatch[❌ Lỗi: Mật khẩu không khớp]
+    ErrorPassMismatch --> FillOTPForm
+    
+    ValidatePassword -->|Khớp| BeginReset[(🔄 BEGIN TRANSACTION)]
+    BeginReset --> HashPassword[🔐 Hash password mới<br/>BCryptPasswordEncoder]
+    HashPassword --> UpdatePassword[💾 Cập nhật database<br/>- password_hash = new<br/>- otp_code = NULL<br/>- otp_expiry = NULL]
+    UpdatePassword --> CommitReset[(✅ COMMIT)]
+    CommitReset --> SuccessReset[✔️ Đặt lại mật khẩu thành công]
+    SuccessReset --> RedirectLogin[🔄 Chuyển đến /login]
+    RedirectLogin --> End([🏁 Kết thúc])
+    
+    BeginReset -.->|Lỗi SQL| RollbackReset[(❌ ROLLBACK)]
+    RollbackReset --> ErrorDB[❌ Lỗi hệ thống]
+    ErrorDB --> FillOTPForm
+            </pre>
+            </div>
+
+            <div class="info-box">
+              <h4>📝 Chi tiết Quy trình Quên mật khẩu</h4>
+              <p><strong>Bước 1 - Yêu cầu OTP:</strong></p>
+              <ul>
+                <li>User nhập email vào form <code>/forgot-password</code></li>
+                <li>Hệ thống kiểm tra email có tồn tại trong database</li>
+                <li>Sinh mã OTP ngẫu nhiên 4 chữ số (0000-9999)</li>
+                <li>
+                  Lưu OTP và thời gian hết hạn (5 phút) vào bảng
+                  <code>user</code>
+                </li>
+                <li>Gửi email chứa mã OTP qua SMTP Gmail</li>
+              </ul>
+
+              <p><strong>Bước 2 - Xác thực OTP:</strong></p>
+              <ul>
+                <li>User nhập mã OTP nhận được qua email</li>
+                <li>Hệ thống so sánh OTP với database</li>
+                <li>Kiểm tra OTP còn trong thời hạn 5 phút</li>
+                <li>User nhập mật khẩu mới và xác nhận</li>
+              </ul>
+
+              <p><strong>Bước 3 - Đặt lại mật khẩu:</strong></p>
+              <ul>
+                <li>Hash mật khẩu mới bằng BCrypt</li>
+                <li>Cập nhật <code>password_hash</code> trong database</li>
+                <li>
+                  Xóa OTP cũ (set <code>otp_code</code> và
+                  <code>otp_expiry</code> = NULL)
+                </li>
+                <li>Chuyển hướng về trang đăng nhập</li>
+              </ul>
+            </div>
+
+            <div class="warning-box">
+              <h4>⚠️ Lưu ý Bảo mật</h4>
+              <ul>
+                <li>
+                  <strong>OTP chỉ có hiệu lực 5 phút</strong> - Giảm nguy cơ bị
+                  tấn công brute-force
+                </li>
+                <li>
+                  <strong>OTP được xóa sau khi sử dụng</strong> - Không thể tái
+                  sử dụng cùng mã
+                </li>
+                <li>
+                  <strong>Mật khẩu được hash bằng BCrypt</strong> - Không lưu
+                  trữ plaintext
+                </li>
+                <li>
+                  <strong>Email gửi qua SMTP Gmail có mã hóa TLS</strong> - Bảo
+                  vệ trong quá trình truyền
+                </li>
+                <li>
+                  <strong>Rate limiting nên được thêm vào</strong> - Giới hạn số
+                  lần gửi OTP/phút
+                </li>
+              </ul>
+            </div>
           </div>
 
           <div class="section" id="market-flow">
