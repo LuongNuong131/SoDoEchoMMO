@@ -3,503 +3,80 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EchoMMO GameFi System Architecture</title>
+    <title>EchoMMO - Tài liệu Phân tích & Thiết kế Hệ thống</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
-    <style>
-      /* Google Font Import */
-      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
 
+    <style>
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        scroll-behavior: smooth; /* Thêm hiệu ứng cuộn mượt */
       }
 
-      :root {
-        --primary: #667eea;
-        --secondary: #764ba2;
-        --accent: #f093fb;
-        --dark: #1a1a2e;
-        --light: #f8f9fa;
-        --success: #4ade80;
-        --warning: #fbbf24;
-        --info: #60a5fa;
+      html {
+        scroll-behavior: smooth;
       }
 
       body {
         font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
-          Roboto, sans-serif;
-        background: linear-gradient(
-          135deg,
-          #0f0c29 0%,
-          #302b63 50%,
-          #24243e 100%
-        );
-        color: var(--light);
-        overflow-x: hidden;
-        line-height: 1.6;
+          sans-serif;
+        line-height: 1.7;
+        color: #1f2937;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 0;
+        min-height: 100vh;
       }
 
-      /* Animated Background */
-      .bg-animation {
+      /* Scroll to top button */
+      #scrollTop {
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 0;
-        opacity: 0.1;
-      }
-
-      .bg-animation span {
-        position: absolute;
-        display: block;
-        width: 20px;
-        height: 20px;
-        background: rgba(102, 126, 234, 0.5);
-        animation: float 25s infinite linear;
-        border-radius: 50%;
-        bottom: -150px; /* Bắt đầu từ dưới màn hình */
-      }
-
-      .bg-animation span:nth-child(1) {
-        left: 10%;
-        animation-delay: 0s;
-      }
-      .bg-animation span:nth-child(2) {
-        left: 20%;
-        animation-delay: 2s;
-        width: 30px;
-        height: 30px;
-      }
-      .bg-animation span:nth-child(3) {
-        left: 30%;
-        animation-delay: 4s;
-      }
-      .bg-animation span:nth-child(4) {
-        left: 40%;
-        animation-delay: 6s;
-        width: 25px;
-        height: 25px;
-      }
-      .bg-animation span:nth-child(5) {
-        left: 50%;
-        animation-delay: 8s;
-      }
-      .bg-animation span:nth-child(6) {
-        left: 60%;
-        animation-delay: 10s;
-        width: 35px;
-        height: 35px;
-      }
-      .bg-animation span:nth-child(7) {
-        left: 70%;
-        animation-delay: 12s;
-      }
-      .bg-animation span:nth-child(8) {
-        left: 80%;
-        animation-delay: 14s;
-        width: 28px;
-        height: 28px;
-      }
-      .bg-animation span:nth-child(9) {
-        left: 90%;
-        animation-delay: 16s;
-      }
-
-      @keyframes float {
-        0% {
-          transform: translateY(0) rotate(0deg);
-          opacity: 0;
-        }
-        10% {
-          opacity: 1;
-        }
-        90% {
-          opacity: 1;
-        }
-        100% {
-          transform: translateY(-120vh) rotate(360deg);
-          opacity: 0;
-        }
-      }
-
-      /* Navigation */
-      nav {
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-        background: rgba(26, 26, 46, 0.95);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px); /* Hỗ trợ Safari */
-        border-bottom: 1px solid rgba(102, 126, 234, 0.2);
-        padding: 1rem 0;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-      }
-
-      .nav-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 0 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .logo {
-        font-size: 1.8rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, var(--primary), var(--accent));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .nav-links {
-        display: flex;
-        gap: 2rem;
-        list-style: none;
-      }
-
-      .nav-links a {
-        color: var(--light);
-        text-decoration: none;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        position: relative;
-        padding: 0.5rem 0;
-      }
-
-      .nav-links a::after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 0;
-        height: 2px;
-        background: linear-gradient(90deg, var(--primary), var(--accent));
-        transition: width 0.3s ease;
-      }
-
-      .nav-links a:hover,
-      .nav-links a.active {
-        color: var(--accent);
-      }
-
-      .nav-links a:hover::after,
-      .nav-links a.active::after {
-        width: 100%;
-      }
-
-      /* Container */
-      .container {
-        position: relative;
-        z-index: 1;
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 3rem 2rem;
-      }
-
-      /* Hero Section */
-      .hero {
-        text-align: center;
-        padding: 4rem 0;
-        margin-bottom: 4rem;
-      }
-
-      .hero h1 {
-        font-size: 4rem;
-        font-weight: 900;
-        background: linear-gradient(
-          135deg,
-          #667eea 0%,
-          #f093fb 50%,
-          #764ba2 100%
-        );
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: 1rem;
-        animation: fadeInDown 1s ease;
-      }
-
-      .hero p {
-        font-size: 1.3rem;
-        color: rgba(248, 249, 250, 0.7);
-        margin-bottom: 2rem;
-        max-width: 700px;
-        margin-left: auto;
-        margin-right: auto;
-        animation: fadeInUp 1s ease 0.2s both;
-      }
-
-      .stats {
-        display: flex;
-        justify-content: center;
-        gap: 3rem;
-        margin-top: 3rem;
-        animation: fadeInUp 1s ease 0.4s both;
-      }
-
-      .stat-item {
-        text-align: center;
-        padding: 1.5rem 2rem;
-        background: rgba(102, 126, 234, 0.1);
-        border-radius: 15px;
-        border: 1px solid rgba(102, 126, 234, 0.3);
-        backdrop-filter: blur(10px);
-        transition: all 0.3s ease;
-        width: 200px;
-      }
-
-      .stat-item:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-      }
-
-      .stat-number {
-        font-size: 2.5rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, var(--primary), var(--accent));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
-
-      .stat-label {
-        color: rgba(248, 249, 250, 0.6);
-        margin-top: 0.5rem;
-      }
-
-      /* Section */
-      .section {
-        margin-bottom: 4rem;
-        padding-top: 60px; /* Offset for sticky nav */
-        margin-top: -60px; /* Negative margin to keep position correct */
-        animation: fadeIn 1s ease;
-      }
-
-      .section-header {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid rgba(102, 126, 234, 0.3);
-      }
-
-      .section-number {
+        bottom: 30px;
+        right: 30px;
         width: 50px;
         height: 50px;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        border-radius: 12px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.3s, transform 0.3s;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
-        font-weight: 800;
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        flex-shrink: 0;
       }
 
-      .section h2 {
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--light);
+      #scrollTop.show {
+        opacity: 1;
       }
 
-      /* Card */
-      .card {
-        background: rgba(26, 26, 46, 0.8);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-radius: 20px;
-        padding: 2.5rem;
-        border: 1px solid rgba(102, 126, 234, 0.2);
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-        transition: all 0.3s ease;
-        margin-bottom: 2rem;
-      }
-
-      .card:hover {
+      #scrollTop:hover {
         transform: translateY(-5px);
-        box-shadow: 0 25px 70px rgba(102, 126, 234, 0.3);
-        border-color: rgba(102, 126, 234, 0.5);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
       }
 
-      .diagram-wrapper {
-        background: rgba(15, 12, 41, 0.6);
-        border-radius: 15px;
-        padding: 2rem;
-        margin: 2rem 0;
-        border: 1px solid rgba(102, 126, 234, 0.2);
-        overflow-x: auto;
+      .container {
+        max-width: 1400px;
+        margin: 30px auto;
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        animation: fadeIn 0.5s ease-in;
       }
 
-      pre.mermaid {
-        background: transparent;
-        text-align: center;
-        padding: 1rem;
-      }
-
-      /* Info Box */
-      .info-box {
-        background: linear-gradient(
-          135deg,
-          rgba(102, 126, 234, 0.1) 0%,
-          rgba(118, 75, 162, 0.1) 100%
-        );
-        border-left: 4px solid var(--primary);
-        border-radius: 12px;
-        padding: 2rem;
-        margin: 2rem 0;
-        backdrop-filter: blur(10px);
-      }
-
-      .info-box h3 {
-        color: var(--accent);
-        margin-bottom: 1rem;
-        font-size: 1.3rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .info-box p,
-      .info-box ul {
-        color: rgba(248, 249, 250, 0.8);
-        line-height: 1.8;
-        padding-left: 20px;
-      }
-
-      .info-box li {
-        margin-bottom: 0.5rem;
-      }
-
-      .info-box strong {
-        color: var(--info);
-      }
-
-      /* Features Grid */
-      .features {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-        margin: 3rem 0;
-      }
-
-      .feature-card {
-        background: rgba(26, 26, 46, 0.6);
-        border-radius: 15px;
-        padding: 2rem;
-        border: 1px solid rgba(102, 126, 234, 0.2);
-        transition: all 0.3s ease;
-        text-align: center;
-      }
-
-      .feature-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
-        border-color: var(--primary);
-      }
-
-      .feature-icon {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        color: var(--primary);
-      }
-
-      .feature-card h4 {
-        color: var(--accent);
-        margin-bottom: 1rem;
-        font-size: 1.2rem;
-      }
-
-      .feature-card p {
-        color: rgba(248, 249, 250, 0.7);
-      }
-
-      /* Tab System */
-      .tabs {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 2rem;
-        border-bottom: 2px solid rgba(102, 126, 234, 0.2);
-      }
-
-      .tab {
-        padding: 1rem 2rem;
-        background: transparent;
-        border: none;
-        color: rgba(248, 249, 250, 0.6);
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        position: relative;
-      }
-
-      .tab.active {
-        color: var(--accent);
-      }
-
-      .tab.active::after {
-        content: "";
-        position: absolute;
-        bottom: -2px;
-        left: 0;
-        width: 100%;
-        height: 2px;
-        background: linear-gradient(90deg, var(--primary), var(--accent));
-      }
-
-      .tab:hover {
-        color: var(--light);
-      }
-
-      .tab-content {
-        display: none;
-      }
-
-      .tab-content.active {
-        display: block;
-        animation: fadeIn 0.5s ease;
-      }
-
-      /* Footer */
-      footer {
-        text-align: center;
-        padding: 3rem 0;
-        margin-top: 5rem;
-        border-top: 1px solid rgba(102, 126, 234, 0.2);
-      }
-
-      footer p {
-        color: rgba(248, 249, 250, 0.5);
-        margin: 0.5rem 0;
-      }
-
-      /* Animations */
       @keyframes fadeIn {
         from {
           opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-
-      @keyframes fadeInDown {
-        from {
-          opacity: 0;
-          transform: translateY(-30px);
+          transform: translateY(20px);
         }
         to {
           opacity: 1;
@@ -507,7 +84,130 @@
         }
       }
 
-      @keyframes fadeInUp {
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 40px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        opacity: 0.3;
+      }
+
+      .header h1 {
+        font-size: 3.5em;
+        margin-bottom: 15px;
+        font-weight: 800;
+        position: relative;
+        letter-spacing: -1px;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      .header p {
+        font-size: 1.3em;
+        opacity: 0.95;
+        font-weight: 400;
+        position: relative;
+      }
+
+      .content-wrapper {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 0;
+        min-height: 80vh;
+      }
+
+      .toc-wrapper {
+        background: #f8fafc;
+        border-right: 1px solid #e2e8f0;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+        padding: 30px 0;
+      }
+
+      .toc {
+        padding: 0 25px;
+      }
+
+      .toc h2 {
+        color: #667eea;
+        font-size: 1.4em;
+        font-weight: 700;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 3px solid #667eea;
+      }
+
+      .toc ul {
+        list-style: none;
+      }
+
+      .toc li {
+        margin: 0;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .toc li:last-child {
+        border-bottom: none;
+      }
+
+      .toc a {
+        color: #475569;
+        text-decoration: none;
+        font-weight: 500;
+        display: block;
+        padding: 12px 15px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        position: relative;
+      }
+
+      .toc a::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 0;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        transition: height 0.2s ease;
+        border-radius: 0 2px 2px 0;
+      }
+
+      .toc a:hover {
+        color: #667eea;
+        background: #ede9fe;
+        padding-left: 20px;
+      }
+
+      .toc a:hover::before {
+        height: 60%;
+      }
+
+      .content {
+        padding: 50px;
+        max-width: 100%;
+      }
+
+      .section {
+        margin-bottom: 80px;
+        animation: slideUp 0.6s ease-out;
+      }
+
+      @keyframes slideUp {
         from {
           opacity: 0;
           transform: translateY(30px);
@@ -518,553 +218,1376 @@
         }
       }
 
-      /* Scroll to Top */
-      .scroll-top {
-        position: fixed;
-        bottom: 2rem;
-        right: 2rem;
-        width: 50px;
-        height: 50px;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        opacity: 0;
-        visibility: hidden; /* Thêm visibility để ẩn hoàn toàn */
-        transform: translateY(20px); /* Hiệu ứng trồi lên */
-        transition: all 0.4s ease;
-        z-index: 1000;
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        color: var(--light);
-        font-size: 1.2rem;
+      h2 {
+        color: #667eea;
+        font-size: 2.5em;
+        font-weight: 700;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 3px solid #667eea;
+        position: relative;
+        display: inline-block;
       }
 
-      .scroll-top.visible {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
+      h2::after {
+        content: "";
+        position: absolute;
+        bottom: -3px;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: #764ba2;
       }
 
-      .scroll-top:hover {
-        transform: translateY(-5px) scale(1.1);
-        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
+      h3 {
+        color: #764ba2;
+        font-size: 1.8em;
+        font-weight: 600;
+        margin: 40px 0 25px 0;
+        position: relative;
+        padding-left: 15px;
       }
 
-      /* Responsive */
+      h3::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 5px;
+        height: 70%;
+        background: linear-gradient(180deg, #667eea, #764ba2);
+        border-radius: 3px;
+      }
+
+      .diagram-container {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-radius: 16px;
+        padding: 35px;
+        margin: 25px 0;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .diagram-container:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(102, 126, 234, 0.15);
+      }
+
+      .mermaid {
+        text-align: center;
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        overflow-x: auto;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+
+      .info-box {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        border-left: 5px solid #3b82f6;
+        padding: 30px;
+        border-radius: 12px;
+        margin: 25px 0;
+        box-shadow: 0 4px 6px rgba(59, 130, 246, 0.1);
+        transition: transform 0.2s ease;
+      }
+
+      .info-box:hover {
+        transform: translateX(5px);
+      }
+
+      .info-box h4 {
+        color: #1e40af;
+        margin-bottom: 15px;
+        font-size: 1.3em;
+        font-weight: 700;
+      }
+
+      .warning-box {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border-left: 5px solid #f59e0b;
+        padding: 30px;
+        border-radius: 12px;
+        margin: 25px 0;
+        box-shadow: 0 4px 6px rgba(245, 158, 11, 0.1);
+        transition: transform 0.2s ease;
+      }
+
+      .warning-box:hover {
+        transform: translateX(5px);
+      }
+
+      .warning-box h4 {
+        color: #92400e;
+        margin-bottom: 15px;
+        font-size: 1.3em;
+        font-weight: 700;
+      }
+
+      .mockup-container {
+        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        border: 3px solid #9ca3af;
+        border-radius: 16px;
+        padding: 25px;
+        margin: 25px 0;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+      }
+
+      .mockup-container:hover {
+        transform: scale(1.01);
+      }
+
+      .mockup-screen {
+        background: white;
+        border: 2px solid #d1d5db;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        min-height: 300px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      }
+
+      .mockup-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 18px;
+        border-radius: 8px 8px 0 0;
+        margin: -20px -20px 20px -20px;
+        font-weight: 700;
+        font-size: 1.1em;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .mockup-element {
+        border: 2px dashed #d1d5db;
+        padding: 20px;
+        margin: 15px 0;
+        border-radius: 8px;
+        background: #fafafa;
+        transition: all 0.2s ease;
+      }
+
+      .mockup-element:hover {
+        background: #f3f4f6;
+        border-color: #9ca3af;
+      }
+
+      .flow-step {
+        background: white;
+        border: 2px solid #667eea;
+        border-radius: 12px;
+        padding: 25px;
+        margin: 20px 0;
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .flow-step::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(180deg, #667eea, #764ba2);
+      }
+
+      .flow-step:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(102, 126, 234, 0.2);
+        border-color: #764ba2;
+      }
+
+      .flow-step strong {
+        color: #667eea;
+        font-weight: 700;
+        font-size: 1.2em;
+        display: block;
+        margin-bottom: 10px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 30px 0;
+        background: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      th,
+      td {
+        padding: 18px;
+        text-align: left;
+        border: 1px solid #e5e7eb;
+        vertical-align: top;
+      }
+
+      th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.9em;
+        letter-spacing: 0.5px;
+      }
+
+      tr {
+        transition: background-color 0.2s ease;
+      }
+
+      tr:nth-child(even) {
+        background: #f9fafb;
+      }
+
+      tr:hover {
+        background: #f3f4f6;
+      }
+
+      code {
+        background: #f1f5f9;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        color: #dc2626;
+        font-size: 0.9em;
+      }
+
+      ul {
+        margin-left: 25px;
+        margin-top: 10px;
+      }
+
+      li {
+        margin: 8px 0;
+        line-height: 1.6;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85em;
+        font-weight: 600;
+        margin: 0 5px;
+      }
+
+      .badge-get {
+        background: #d1fae5;
+        color: #065f46;
+      }
+
+      .badge-post {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+
+      .footer {
+        text-align: center;
+        padding: 50px;
+        border-top: 3px solid #e5e7eb;
+        margin-top: 80px;
+        background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+      }
+
+      .footer h2 {
+        color: #667eea;
+        border: none;
+        padding: 0;
+        margin-bottom: 10px;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 1200px) {
+        .content-wrapper {
+          grid-template-columns: 250px 1fr;
+        }
+      }
+
+      @media (max-width: 1024px) {
+        .content-wrapper {
+          grid-template-columns: 1fr;
+        }
+
+        .toc-wrapper {
+          position: static;
+          height: auto;
+          border-right: none;
+          border-bottom: 1px solid #e2e8f0;
+        }
+
+        .container {
+          margin: 20px;
+          border-radius: 16px;
+        }
+      }
+
       @media (max-width: 768px) {
-        .hero h1 {
-          font-size: 2.5rem;
+        .container {
+          margin: 10px;
+          border-radius: 12px;
         }
 
-        .nav-links {
-          display: none; /* Sẽ cần JS để làm menu hamburger */
+        .header {
+          padding: 40px 20px;
         }
 
-        .stats {
-          flex-direction: column;
-          gap: 1.5rem;
-          align-items: center;
+        .header h1 {
+          font-size: 2.5em;
         }
 
-        .section-header {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 0.5rem;
+        .content {
+          padding: 30px 20px;
         }
 
-        .card,
-        .diagram-wrapper {
-          padding: 1.5rem;
+        h2 {
+          font-size: 2em;
         }
+
+        h3 {
+          font-size: 1.5em;
+        }
+
+        table {
+          display: block;
+          overflow-x: auto;
+          white-space: nowrap;
+        }
+
+        .mockup-screen [style*="grid-template-columns"] {
+          grid-template-columns: 1fr !important;
+        }
+      }
+
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #667eea, #764ba2);
+        border-radius: 5px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #5568d3, #6a3f8f);
       }
     </style>
   </head>
   <body>
-    <div class="bg-animation">
-      <span></span><span></span><span></span><span></span><span></span
-      ><span></span><span></span><span></span><span></span>
-    </div>
-
-    <nav>
-      <div class="nav-container">
-        <div class="logo"><i class="fa-solid fa-gamepad"></i> EchoMMO</div>
-        <ul class="nav-links">
-          <li><a href="#overview">Tổng quan</a></li>
-          <li><a href="#dfd">DFD</a></li>
-          <li><a href="#activity">Activity</a></li>
-          <li><a href="#class">Class Diagram</a></li>
-        </ul>
-      </div>
-    </nav>
+    <button
+      id="scrollTop"
+      onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
+    >
+      ↑
+    </button>
 
     <div class="container">
-      <section class="hero" id="overview">
-        <h1>GameFi System Architecture</h1>
-        <p>
-          Khám phá kiến trúc chi tiết của EchoMMO - nền tảng game thế hệ mới kết
-          hợp giữa thể loại MMO hấp dẫn và công nghệ Blockchain & NFT đột phá.
-        </p>
-
-        <div class="stats">
-          <div class="stat-item">
-            <div class="stat-number">9</div>
-            <div class="stat-label">Core Tables</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-number">3</div>
-            <div class="stat-label">Main Systems</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-number">∞</div>
-            <div class="stat-label">Possibilities</div>
-          </div>
-        </div>
-      </section>
-
-      <div class="features">
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fa-solid fa-scroll"></i></div>
-          <h4>Quest System</h4>
-          <p>
-            Hệ thống nhiệm vụ phong phú với phần thưởng đa dạng và cơ chế
-            progression hấp dẫn.
-          </p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fa-solid fa-store"></i></div>
-          <h4>Market Place</h4>
-          <p>
-            Chợ giao dịch P2P với cơ chế niêm yết, tìm kiếm và thanh toán an
-            toàn.
-          </p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fa-solid fa-wallet"></i></div>
-          <h4>Wallet System</h4>
-          <p>Quản lý tài sản in-game và crypto với bảo mật đa lớp.</p>
-        </div>
+      <div class="header">
+        <h1>🎮 EchoMMO</h1>
+        <p>Tài liệu Phân tích & Thiết kế Hệ thống GameFi MMO</p>
       </div>
 
-      <section class="section" id="dfd">
-        <div class="section-header">
-          <div class="section-number">01</div>
-          <h2>Data Flow Diagram - Market System</h2>
-        </div>
-
-        <div class="tabs">
-          <button class="tab active" data-tab="dfd-level1">Level 1</button>
-          <button class="tab" data-tab="dfd-level2">Level 2</button>
-        </div>
-
-        <div id="dfd-level1" class="tab-content active">
-          <div class="card">
-            <div class="diagram-wrapper">
-              <pre class="mermaid">
-graph TB
-    Player[🧑‍🚀 Player]
-    Admin[👑 Admin]
-    
-    P5[5. Market System]
-    P4[4. Wallet Mgt]
-    P6[6. System Admin]
-    Core[System Core]
-    
-    DS_Inv[(🗃️ Inventory)]
-    
-    Player -->|Login, Mua/Bán| P5
-    Admin -->|Quản lý| P6
-    P5 -->|Cập nhật Inventory| DS_Inv
-    P5 -->|Cập nhật Ví| P4
-    P6 -->|Lệnh quản trị| Core
-    
-    style Player fill:#667eea,stroke:#f093fb,stroke-width:3px,color:#fff
-    style Admin fill:#fbbf24,stroke:#f59e0b,stroke-width:3px,color:#000
-    style DS_Inv fill:#ec4899,stroke:#db2777,stroke-width:2px,color:#fff
-    style P5 fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
-    style P4 fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
-    style P6 fill:#06b6d4,stroke:#0891b2,stroke-width:2px,color:#fff
-                        </pre
-              >
-            </div>
-            <div class="info-box">
-              <h3>
-                <i class="fa-solid fa-chart-simple"></i> Level 1 - Tổng quan hệ
-                thống
-              </h3>
-              <ul>
-                <li>
-                  <strong>Tác nhân chính:</strong> Player và Admin tương tác với
-                  Market System.
-                </li>
-                <li>
-                  <strong>Luồng dữ liệu:</strong> Kết nối giữa Market, Inventory
-                  và Wallet.
-                </li>
-                <li>
-                  <strong>Mục đích:</strong> Cung cấp cái nhìn tổng quát về kiến
-                  trúc hệ thống.
-                </li>
-              </ul>
-            </div>
+      <div class="content-wrapper">
+        <div class="toc-wrapper">
+          <div class="toc">
+            <h2>📑 Mục lục</h2>
+            <ul>
+              <li><a href="#overview">1. Tổng quan Hệ thống</a></li>
+              <li><a href="#architecture">2. Kiến trúc Hệ thống</a></li>
+              <li><a href="#database">3. Thiết kế Cơ sở Dữ liệu</a></li>
+              <li><a href="#auth-flow">4. Sơ đồ Hoạt động - Xác thực</a></li>
+              <li>
+                <a href="#market-flow">5. Sơ đồ Hoạt động - Marketplace</a>
+              </li>
+              <li><a href="#game-flow">6. Sơ đồ Hoạt động - Gameplay</a></li>
+              <li><a href="#admin-flow">7. Sơ đồ Hoạt động - Quản trị</a></li>
+              <li><a href="#mockups">8. Mockup Giao diện</a></li>
+              <li><a href="#implementation">9. Quy trình Triển khai</a></li>
+              <li><a href="#appendix-a">Phụ lục A: Stored Procedures</a></li>
+              <li><a href="#appendix-b">Phụ lục B: API Endpoints</a></li>
+            </ul>
           </div>
         </div>
 
-        <div id="dfd-level2" class="tab-content">
-          <div class="card">
-            <div class="diagram-wrapper">
-              <pre class="mermaid">
-graph TB
-    Player2[🧑‍🚀 Player]
-    
-    P5_1[5.1 Đăng bán]
-    P5_2[5.2 Tìm kiếm]
-    P5_3[5.3 Mua vật phẩm]
-    P5_4[5.4 Hủy niêm yết]
-    P5_5[5.5 Thông báo]
-    
-    DS_Inv2[(🗃️ user_item)]
-    DS_Market[(🏪 market_listing)]
-    DS_Trans[(💸 transaction_history)]
-    
-    Player2 -->|Thông tin vật phẩm| P5_1
-    Player2 -->|Từ khóa, bộ lọc| P5_2
-    Player2 -->|Chọn mua| P5_3
-    Player2 -->|Yêu cầu hủy| P5_4
-    
-    P5_1 -->|Trừ vật phẩm| DS_Inv2
-    P5_1 -->|Tạo niêm yết| DS_Market
-    
-    P5_2 -->|Truy vấn| DS_Market
-    
-    P5_3 -->|Cập nhật trạng thái| DS_Market
-    P5_3 -->|Thêm vật phẩm| DS_Inv2
-    P5_3 -->|Ghi giao dịch| DS_Trans
-    
-    P5_4 -->|Xóa niêm yết| DS_Market
-    P5_4 -->|Hoàn trả vật phẩm| DS_Inv2
-    
-    DS_Trans -->|Dữ liệu thông báo| P5_5
-    P5_5 -->|Gửi thông báo| Player2
+        <div class="content">
+          <div class="section" id="overview">
+            <h2>1. 🎯 Tổng quan Hệ thống</h2>
 
-    style Player2 fill:#667eea,stroke:#f093fb,stroke-width:3px,color:#fff
-    style DS_Inv2 fill:#ec4899,stroke:#db2777,stroke-width:2px,color:#fff
-    style DS_Market fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
-    style DS_Trans fill:#8b5cf6,stroke:#7c3aed,stroke-width:2px,color:#fff
-    style P5_1 fill:#06b6d4,stroke:#0891b2,stroke-width:2px,color:#fff
-    style P5_2 fill:#06b6d4,stroke:#0891b2,stroke-width:2px,color:#fff
-    style P5_3 fill:#06b6d4,stroke:#0891b2,stroke-width:2px,color:#fff
-    style P5_4 fill:#06b6d4,stroke:#0891b2,stroke-width:2px,color:#fff
-    style P5_5 fill:#06b6d4,stroke:#0891b2,stroke-width:2px,color:#fff
-                        </pre
-              >
-            </div>
             <div class="info-box">
-              <h3>
-                <i class="fa-solid fa-magnifying-glass-chart"></i> Level 2 - Chi
-                tiết Market System
-              </h3>
-              <p><strong>5 chức năng chính được phân rã:</strong></p>
+              <h4>Giới thiệu Dự án</h4>
+              <p>
+                <strong>EchoMMO</strong> là một nền tảng GameFi kết hợp giữa
+                game MMO truyền thống với công nghệ blockchain. Người chơi có
+                thể:
+              </p>
               <ul>
-                <li><strong>Đăng bán:</strong> Player đưa items lên market.</li>
-                <li><strong>Tìm kiếm:</strong> Filter và search items.</li>
-                <li><strong>Mua vật phẩm:</strong> Xử lý giao dịch.</li>
-                <li>
-                  <strong>Hủy niêm yết:</strong> Hủy listing và hoàn trả vật
-                  phẩm.
-                </li>
-                <li><strong>Thông báo:</strong> Gửi thông báo real-time.</li>
+                <li>🎮 Tham gia phiêu lưu, chiến đấu với quái vật</li>
+                <li>⛏️ Thu thập nguyên liệu (đá, gỗ, cá, quặng)</li>
+                <li>🛡️ Trang bị vũ khí, giáp để tăng sức mạnh</li>
+                <li>🏪 Mua bán vật phẩm trên Marketplace</li>
+                <li>💰 Quản lý tài sản trong Ví điện tử</li>
+                <li>📈 Nâng cấp nhân vật và kỹ năng thu thập</li>
               </ul>
             </div>
+
+            <h3>Công nghệ Sử dụng</h3>
+            <table>
+              <tr>
+                <th>Phần</th>
+                <th>Công nghệ</th>
+                <th>Mô tả</th>
+              </tr>
+              <tr>
+                <td><strong>Backend</strong></td>
+                <td>Spring Boot 3.3.0, Java 17</td>
+                <td>Framework chính, RESTful API</td>
+              </tr>
+              <tr>
+                <td><strong>Frontend</strong></td>
+                <td>Thymeleaf, HTML/CSS/JavaScript</td>
+                <td>Template engine, giao diện người dùng</td>
+              </tr>
+              <tr>
+                <td><strong>Database</strong></td>
+                <td>SQL Server</td>
+                <td>Lưu trữ dữ liệu người dùng, vật phẩm, giao dịch</td>
+              </tr>
+              <tr>
+                <td><strong>Security</strong></td>
+                <td>Spring Security, BCrypt</td>
+                <td>Xác thực, phân quyền, mã hóa mật khẩu</td>
+              </tr>
+              <tr>
+                <td><strong>ORM</strong></td>
+                <td>Hibernate, JPA</td>
+                <td>Ánh xạ đối tượng - quan hệ</td>
+              </tr>
+            </table>
           </div>
-        </div>
-      </section>
 
-      <section class="section" id="activity">
-        <div class="section-header">
-          <div class="section-number">02</div>
-          <h2>Activity Diagram - Quest Completion Flow</h2>
-        </div>
+          <div class="section" id="architecture">
+            <h2>2. 🏗️ Kiến trúc Hệ thống</h2>
 
-        <div class="card">
-          <div class="diagram-wrapper">
-            <pre class="mermaid">
+            <div class="diagram-container">
+              <pre class="mermaid">
+graph TB
+    subgraph "Client Layer"
+        Web[🌐 Web Browser]
+    end
+
+    subgraph "Presentation Layer"
+        Thyme[Thymeleaf Templates]
+        Static[Static Resources<br/>CSS/JS/Images]
+    end
+
+    subgraph "Application Layer"
+        AuthCtrl[AuthController]
+        MarketCtrl[MarketplaceController]
+        InvCtrl[InventoryController]
+        GameCtrl[MinigameController]
+        ProfileCtrl[ProfileController]
+    end
+
+    subgraph "Service Layer"
+        AuthSvc[AuthService]
+        MarketSvc[MarketplaceService]
+        CharSvc[CharacterService]
+        GatherSvc[GatheringService]
+        BattleSvc[BattleService]
+    end
+
+    subgraph "Data Access Layer"
+        UserRepo[UserRepository]
+        ItemRepo[ItemRepository]
+        MarketRepo[MarketListingRepository]
+        WalletRepo[WalletRepository]
+        CharRepo[CharacterRepository]
+    end
+
+    subgraph "Database Layer"
+        DB[(SQL Server<br/>GameFiDB)]
+    end
+
+    Web --> Thyme
+    Web --> Static
+    Thyme --> AuthCtrl
+    Thyme --> MarketCtrl
+    Thyme --> InvCtrl
+    Thyme --> GameCtrl
+    Thyme --> ProfileCtrl
+
+    AuthCtrl --> AuthSvc
+    MarketCtrl --> MarketSvc
+    InvCtrl --> CharSvc
+    GameCtrl --> GatherSvc
+    GameCtrl --> BattleSvc
+    ProfileCtrl --> CharSvc
+
+    AuthSvc --> UserRepo
+    MarketSvc --> MarketRepo
+    MarketSvc --> ItemRepo
+    MarketSvc --> WalletRepo
+    CharSvc --> CharRepo
+    GatherSvc --> CharRepo
+    BattleSvc --> CharRepo
+
+    UserRepo --> DB
+    ItemRepo --> DB
+    MarketRepo --> DB
+    WalletRepo --> DB
+    CharRepo --> DB
+            </pre>
+            </div>
+
+            <div class="info-box">
+              <h4>📝 Giải thích Kiến trúc Phân tầng</h4>
+              <p>
+                <strong>1. Client Layer:</strong> Trình duyệt web của người dùng
+              </p>
+              <p>
+                <strong>2. Presentation Layer:</strong> Thymeleaf render HTML
+                động, kết hợp CSS/JS
+              </p>
+              <p>
+                <strong>3. Application Layer (Controllers):</strong> Nhận
+                request, gọi Service, trả response
+              </p>
+              <p>
+                <strong>4. Service Layer:</strong> Xử lý business logic,
+                transaction
+              </p>
+              <p>
+                <strong>5. Data Access Layer (Repositories):</strong> Tương tác
+                với database qua JPA
+              </p>
+              <p>
+                <strong>6. Database Layer:</strong> SQL Server lưu trữ
+                persistent data
+              </p>
+            </div>
+          </div>
+
+          <div class="section" id="database">
+            <h2>3. 🗄️ Thiết kế Cơ sở Dữ liệu</h2>
+
+            <h3>Sơ đồ ERD (Entity Relationship Diagram)</h3>
+            <div class="diagram-container">
+              <pre class="mermaid">
+erDiagram
+    USER ||--o{ CHARACTER_GAME : has
+    USER ||--|| WALLET : owns
+    USER ||--o{ USER_ITEM : owns
+    USER ||--o{ MARKET_LISTING : sells
+    USER ||--o{ USER_QUEST : performs
+    USER }o--|| ROLE : belongs_to
+    
+    ITEM ||--o{ USER_ITEM : contained_in
+    ITEM ||--o{ MARKET_LISTING : listed_as
+    
+    CHARACTER_GAME ||--o{ CHARACTER_GATHERING : has_skills
+    
+    QUEST ||--o{ USER_QUEST : performed_in
+    
+    MARKET_LISTING ||--o| TRANSACTION_HISTORY : generates
+    
+    USER ||--o{ TRANSACTION_HISTORY : buyer
+    USER ||--o{ TRANSACTION_HISTORY : seller
+
+    USER {
+        int user_id PK
+        nvarchar username UK
+        nvarchar password_hash
+        nvarchar email UK
+        nvarchar full_name
+        int role_id FK
+        bit is_active
+        datetime2 created_at
+    }
+
+    ROLE {
+        int role_id PK
+        nvarchar role_name UK
+        nvarchar description
+    }
+
+    WALLET {
+        int wallet_id PK
+        int user_id FK
+        decimal balance
+        datetime2 created_at
+        datetime2 updated_at
+    }
+
+    CHARACTER_GAME {
+        int character_id PK
+        int user_id FK
+        nvarchar name
+        int level
+        int experience
+        int health
+        int max_health
+        int atk
+        int def
+        int energy
+        int max_energy
+        int upgrade_points
+    }
+
+    CHARACTER_GATHERING {
+        bigint id PK
+        int character_id FK
+        varchar resource_type
+        int level
+        int exp
+    }
+
+    ITEM {
+        int item_id PK
+        nvarchar name
+        nvarchar description
+        nvarchar rarity
+        decimal base_price
+        nvarchar item_category
+        varchar game_slot
+        int game_atk
+        int game_def
+        int game_heal
+    }
+
+    USER_ITEM {
+        int user_item_id PK
+        int user_id FK
+        int item_id FK
+        int quantity
+        bit is_equipped
+        datetime2 acquired_at
+    }
+
+    MARKET_LISTING {
+        int listing_id PK
+        int seller_id FK
+        int item_id FK
+        int quantity
+        decimal price
+        nvarchar listing_type
+        nvarchar price_type
+        nvarchar status
+        datetime2 created_at
+    }
+
+    TRANSACTION_HISTORY {
+        int transaction_id PK
+        int buyer_id FK
+        int seller_id FK
+        int item_id FK
+        int listing_id FK
+        int quantity
+        decimal amount
+        nvarchar transaction_type
+        datetime2 created_at
+    }
+
+    QUEST {
+        int quest_id PK
+        nvarchar name
+        nvarchar description
+        decimal reward_gold
+        int reward_exp
+        int required_level
+    }
+
+    USER_QUEST {
+        int user_quest_id PK
+        int user_id FK
+        int quest_id FK
+        nvarchar status
+        datetime2 started_at
+        datetime2 completed_at
+    }
+            </pre
+              >
+            </div>
+
+            <div class="info-box">
+              <h4>🔑 Giải thích các Bảng chính</h4>
+              <p>
+                <strong>user:</strong> Lưu thông tin tài khoản (username,
+                password, email, role)
+              </p>
+              <p>
+                <strong>wallet:</strong> Quản lý số dư vàng của người chơi (1-1
+                với user)
+              </p>
+              <p>
+                <strong>character_game:</strong> Thông tin nhân vật trong game
+                (HP, ATK, DEF, level)
+              </p>
+              <p>
+                <strong>character_gathering:</strong> Kỹ năng thu thập (stone,
+                wood, fish, ore)
+              </p>
+              <p>
+                <strong>item:</strong> Danh mục vật phẩm (vũ khí, giáp, potion,
+                nguyên liệu)
+              </p>
+              <p>
+                <strong>user_item:</strong> Kho đồ của người chơi (số lượng,
+                trang bị)
+              </p>
+              <p><strong>market_listing:</strong> Vật phẩm đang bán trên chợ</p>
+              <p>
+                <strong>transaction_history:</strong> Lịch sử giao dịch mua/bán
+              </p>
+            </div>
+          </div>
+
+          <div class="section" id="auth-flow">
+            <h2>4. 🔐 Sơ đồ Hoạt động - Xác thực</h2>
+
+            <h3>4.1. Đăng ký Tài khoản</h3>
+            <div class="diagram-container">
+              <pre class="mermaid">
 flowchart TD
-    A([🎮 Bắt đầu]) --> B{Mở giao diện<br/>nhiệm vụ}
-    B --> C[Chọn 'Nhận nhiệm vụ']
-    C --> F[💾 Lưu trạng thái<br/>'In Progress']
-    F --> D[⚔️ Thực hiện<br/>yêu cầu trong game]
-    D --> E{📋 Trả nhiệm vụ}
-    E --> G{✅ Điều kiện<br/>hoàn thành?}
-    G -->|Chưa đủ| D
-    G -->|Hoàn thành| H[📝 Cập nhật trạng thái<br/>'Completed']
-    H --> I[🎁 Bắt đầu Trao thưởng]
-    I --> J[💰 Cộng Gold]
-    I --> K[⭐ Cộng EXP]
-    I --> L[🎒 Thêm Vật phẩm]
-    J --> M[✨ Kết thúc Trao thưởng]
-    K --> M
-    L --> M
-    M --> N[📬 Gửi thông báo]
-    N --> Z([🏁 Kết thúc])
+    Start([👤 Bắt đầu Đăng ký]) --> OpenRegister[Mở trang /register]
+    OpenRegister --> FillForm[📝 Điền form đăng ký<br/>Username, Email, Password, Confirm]
+    FillForm --> Submit[Nhấn 'Đăng ký']
+    Submit --> ValidateInput{✓ Kiểm tra dữ liệu}
     
-    style A fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
-    style Z fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
-    style G fill:#f59e0b,stroke:#d97706,stroke-width:3px,color:#fff
-    style I fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
-    style M fill:#8b5cf6,stroke:#7c3aed,stroke-width:3px,color:#fff
-                    </pre>
+    ValidateInput -->|Password không khớp| ErrorConfirm[❌ Lỗi: Mật khẩu không khớp]
+    ErrorConfirm --> FillForm
+    
+    ValidateInput -->|Hợp lệ| CheckUsername{✓ Username<br/>đã tồn tại?}
+    CheckUsername -->|Đã tồn tại| ErrorUsername[❌ Lỗi: Username đã được sử dụng]
+    ErrorUsername --> FillForm
+    
+    CheckUsername -->|Chưa tồn tại| CheckEmail{✓ Email<br/>đã tồn tại?}
+    CheckEmail -->|Đã tồn tại| ErrorEmail[❌ Lỗi: Email đã được sử dụng]
+    ErrorEmail --> FillForm
+    
+    CheckEmail -->|Chưa tồn tại| BeginTransaction[(🔄 BEGIN TRANSACTION)]
+    BeginTransaction --> CreateUser[📝 Tạo User mới<br/>- Hash password<br/>- Role = Player<br/>- is_active = true]
+    CreateUser --> CreateWallet[💰 Tạo Wallet<br/>- balance = 0]
+    CreateWallet --> CreateCharacter[🧙 Tạo Character<br/>- Level 1<br/>- HP, ATK, DEF mặc định]
+    CreateCharacter --> InitGathering[⛏️ Khởi tạo kỹ năng thu thập<br/>- Stone, Wood, Fish, Ore<br/>- Level 1]
+    InitGathering --> Commit[(✅ COMMIT)]
+    Commit --> Success[✔️ Đăng ký thành công]
+    Success --> RedirectLogin[🔄 Chuyển đến /login]
+    RedirectLogin --> End([🏁 Kết thúc])
+    
+    BeginTransaction -.->|Lỗi SQL| Rollback[(❌ ROLLBACK)]
+    Rollback --> ErrorDB[❌ Lỗi hệ thống]
+    ErrorDB --> FillForm
+            </pre>
+            </div>
+
+            <h3>4.2. Đăng nhập</h3>
+            <div class="diagram-container">
+              <pre class="mermaid">
+flowchart TD
+    Start([🔓 Bắt đầu Đăng nhập]) --> OpenLogin[Mở trang /login]
+    OpenLogin --> FillCred[📝 Nhập Username & Password]
+    FillCred --> Submit[Nhấn 'Sign in']
+    Submit --> FindUser{🔍 Tìm User<br/>trong database}
+    
+    FindUser -->|Không tìm thấy| ErrorNotFound[❌ Lỗi: Username không tồn tại]
+    ErrorNotFound --> FillCred
+    
+    FindUser -->|Tìm thấy| CheckActive{✓ Account<br/>is_active?}
+    CheckActive -->|Bị khóa| ErrorInactive[❌ Lỗi: Tài khoản đã bị khóa]
+    ErrorInactive --> FillCred
+    
+    CheckActive -->|Active| VerifyPassword{🔐 BCrypt verify<br/>password?}
+    VerifyPassword -->|Sai| ErrorPassword[❌ Lỗi: Mật khẩu không đúng]
+    ErrorPassword --> FillCred
+    
+    VerifyPassword -->|Đúng| CreateSession[✅ Tạo Session<br/>Spring Security Authentication]
+    CreateSession --> UpdateLastLogin[📅 Cập nhật last_login]
+    UpdateLastLogin --> CheckRole{👤 Role?}
+    
+    CheckRole -->|ADMIN| RedirectAdmin[🔄 Chuyển đến /admin/dashboard]
+    CheckRole -->|PLAYER| RedirectHome[🔄 Chuyển đến /]
+    
+    RedirectAdmin --> End([🏁 Kết thúc])
+    RedirectHome --> End
+            </pre>
+            </div>
           </div>
 
-          <div class="info-box">
-            <h3>
-              <i class="fa-solid fa-person-running"></i> Quy trình hoàn thành
-              nhiệm vụ
-            </h3>
-            <p><strong>Các bước chính trong luồng hoạt động:</strong></p>
-            <ul>
-              <li>1️⃣ <strong>Khởi tạo:</strong> Player mở UI và nhận quest.</li>
-              <li>
-                2️⃣ <strong>Tiến hành:</strong> Thực hiện yêu cầu trong game
-                (combat, collect, explore).
-              </li>
-              <li>
-                3️⃣ <strong>Kiểm tra:</strong> Hệ thống xác thực điều kiện hoàn
-                thành.
-              </li>
-              <li>
-                4️⃣ <strong>Trao thưởng:</strong> Phân phối song song các phần
-                thưởng (Gold, EXP, Items).
-              </li>
-              <li>
-                5️⃣ <strong>Thông báo:</strong> Gửi thông báo thành công cho
-                player.
-              </li>
-            </ul>
+          <div class="section" id="market-flow">
+            <h2>5. 🏪 Sơ đồ Hoạt động - Marketplace</h2>
+
+            <h3>5.1. Đăng bán Vật phẩm (Player Listing)</h3>
+            <div class="diagram-container">
+              <pre class="mermaid">
+flowchart TD
+    Start([🛒 Bắt đầu Đăng bán]) --> OpenCreate[Mở /marketplace/create]
+    OpenCreate --> SelectTab[Chọn tab 'Bán cho Player']
+    SelectTab --> ClickSelect[Click 'Chọn từ kho']
+    ClickSelect --> ShowModal[📦 Hiện modal danh sách<br/>vật phẩm trong inventory]
+    ShowModal --> SelectItem[Chọn vật phẩm muốn bán]
+    SelectItem --> FillForm[📝 Điền số lượng & giá bán]
+    FillForm --> Submit[Nhấn 'Đăng bán']
+    Submit --> ValidateQty{✓ Đủ số lượng<br/>trong kho?}
+    
+    ValidateQty -->|Không đủ| ErrorQty[❌ Lỗi: Không đủ vật phẩm]
+    ErrorQty --> FillForm
+    
+    ValidateQty -->|Đủ| CallStoredProc[🔧 Gọi Stored Procedure<br/>sp_create_player_listing]
+    CallStoredProc --> BeginTrans[(🔄 BEGIN TRANSACTION)]
+    BeginTrans --> DeductItem[➖ Trừ vật phẩm<br/>từ user_item]
+    DeductItem --> CreateListing[📝 Tạo record<br/>market_listing<br/>- status = Active<br/>- price_type = Player]
+    CreateListing --> Commit[(✅ COMMIT)]
+    Commit --> Success[✔️ Đăng bán thành công]
+    Success --> RedirectMyListings[🔄 Chuyển đến /marketplace/my-listings]
+    RedirectMyListings --> End([🏁 Kết thúc])
+    
+    BeginTrans -.->|Lỗi| Rollback[(❌ ROLLBACK)]
+    Rollback --> ErrorDB[❌ Lỗi hệ thống]
+    ErrorDB --> FillForm
+            </pre>
+            </div>
+
+            <h3>5.2. Mua Vật phẩm từ Marketplace</h3>
+            <div class="diagram-container">
+              <pre class="mermaid">
+flowchart TD
+    Start([💰 Bắt đầu Mua hàng]) --> Browse[Duyệt /marketplace]
+    Browse --> UseFilter{🔍 Dùng bộ lọc?}
+    UseFilter -->|Có| Filter[Lọc theo:<br/>- Tìm kiếm từ khóa<br/>- Category<br/>- Giá tối đa]
+    UseFilter -->|Không| ViewAll[Xem tất cả listing]
+    Filter --> ViewList[📋 Xem danh sách vật phẩm]
+    ViewAll --> ViewList
+    ViewList --> SelectItem[Chọn vật phẩm muốn mua]
+    SelectItem --> ClickBuy[Click 'Mua ngay']
+    ClickBuy --> ConfirmDialog{⚠️ Xác nhận mua?}
+    
+    ConfirmDialog -->|Hủy| ViewList
+    ConfirmDialog -->|OK| CallStoredProc[🔧 Gọi sp_buy_from_market]
+    CallStoredProc --> BeginTrans[(🔄 BEGIN TRANSACTION)]
+    BeginTrans --> CheckListing{✓ Listing<br/>còn Active?}
+    
+    CheckListing -->|Đã bán/hủy| ErrorSold[❌ Lỗi: Vật phẩm đã bán]
+    ErrorSold --> End([🏁 Kết thúc])
+    
+    CheckListing -->|Active| CheckSelf{✓ Mua hàng<br/>của mình?}
+    CheckSelf -->|Có| ErrorSelf[❌ Lỗi: Không thể mua hàng của mình]
+    ErrorSelf --> End
+    
+    CheckSelf -->|Không| CheckBalance{✓ Đủ tiền<br/>trong ví?}
+    CheckBalance -->|Không đủ| ErrorMoney[❌ Lỗi: Số dư không đủ]
+    ErrorMoney --> End
+    
+    CheckBalance -->|Đủ| DeductMoney[➖ Trừ tiền người mua<br/>UPDATE wallet]
+    DeductMoney --> CalcFee[💵 Tính phí 5%<br/>fee = price * 0.05]
+    CalcFee --> AddMoneyCheck{💰 Giao dịch<br/>loại gì?}
+    AddMoneyCheck -->|Player-to-Player| AddMoney[➕ Cộng tiền người bán<br/>amount = price - fee]
+    AddMoneyCheck -->|System/Admin| SkipAddMoney[Bỏ qua cộng tiền<br/>Tiền về hệ thống]
+    AddMoney --> AddItem[📦 Thêm vật phẩm<br/>vào kho người mua]
+    SkipAddMoney --> AddItem
+    AddItem --> UpdateStatus[📝 Cập nhật listing<br/>status = Sold<br/>sold_at = GETDATE]
+    UpdateStatus --> LogTransaction[📊 Ghi transaction_history<br/>- buyer_id, seller_id<br/>- item_id, amount]
+    LogTransaction --> Commit[(✅ COMMIT)]
+    Commit --> Success[✔️ Mua hàng thành công]
+    Success --> Reload[🔄 Reload trang marketplace]
+    Reload --> End
+            </pre>
+            </div>
           </div>
-        </div>
-      </section>
 
-      <section class="section" id="class">
-        <div class="section-header">
-          <div class="section-number">03</div>
-          <h2>Class Diagram - Database Architecture</h2>
-        </div>
+          <div class="section" id="game-flow">
+            <h2>6. 🎮 Sơ đồ Hoạt động - Gameplay</h2>
 
-        <div class="card">
-          <div class="diagram-wrapper">
-            <pre class="mermaid">
-classDiagram
-    class user {
-        +INT user_id PK
-        +NVARCHAR username
-        +NVARCHAR password_hash
-        +NVARCHAR email
-        +DATETIME created_at
-    }
-
-    class wallet {
-        +INT wallet_id PK
-        +INT user_id FK
-        +DECIMAL balance
-        +DATETIME last_updated
-    }
+            <h3>6.1. Phiêu lưu (Adventure)</h3>
+            <div class="diagram-container">
+              <pre class="mermaid">
+flowchart TD
+    Start([Bắt đầu Phiêu lưu]) --> OpenMinigame[Mở /minigame]
+    OpenMinigame --> CheckEnergy{Đủ 10 Energy?}
     
-    class character_game {
-        +INT character_id PK
-        +INT user_id FK
-        +NVARCHAR name
-        +INT level
-        +INT experience
-        +DATETIME created_at
-    }
-
-    class item {
-        +INT item_id PK
-        +NVARCHAR name
-        +NVARCHAR rarity
-        +DECIMAL base_price
-        +NVARCHAR description
-    }
+    CheckEnergy -->|Không| ErrorEnergy[Không đủ năng lượng]
+    ErrorEnergy --> End([Kết thúc])
     
-    class user_item {
-        +INT user_item_id PK
-        +INT user_id FK
-        +INT item_id FK
-        +INT quantity
-        +DATETIME acquired_at
-    }
-
-    class quest {
-        +INT quest_id PK
-        +NVARCHAR name
-        +NVARCHAR description
-        +DECIMAL reward_gold
-        +INT reward_exp
-        +INT required_level
-    }
-
-    class user_quest {
-        +INT user_quest_id PK
-        +INT user_id FK
-        +INT quest_id FK
-        +NVARCHAR status
-        +DATETIME started_at
-        +DATETIME completed_at
-    }
+    CheckEnergy -->|Có| ClickAdventure[Click Phiêu lưu]
+    ClickAdventure --> CallAPI[POST /api/minigame/adventure]
+    CallAPI --> DeductEnergy[Trừ 10 Energy]
+    DeductEnergy --> RollEncounter[Random gặp gì?]
     
-    class market_listing {
-        +INT listing_id PK
-        +INT seller_id FK
-        +INT item_id FK
-        +INT quantity
-        +DECIMAL price
-        +NVARCHAR status
-        +DATETIME listed_at
-    }
+    RollEncounter -->|Enemy 20%| FindEnemy[Random enemy từ DB]
+    FindEnemy --> RedirectBattle[Redirect /battle]
+    RedirectBattle --> End
+    
+    RollEncounter -->|Resource 40%| FindResource[Random resource]
+    FindResource --> RedirectGather[Redirect /gathering]
+    RedirectGather --> End
+    
+    RollEncounter -->|Gold 25%| RandGold[Random 10-20 vàng]
+    RandGold --> AddGold[Cộng vào wallet]
+    AddGold --> ShowMessage[Hiện thông báo]
+    ShowMessage --> UpdateUI[Cập nhật UI]
+    UpdateUI --> End
+    
+    RollEncounter -->|EXP 15%| RandExp[Random 15-35 EXP]
+    RandExp --> AddExp[Cộng vào experience]
+    AddExp --> CheckLevel{Đủ EXP lên cấp?}
+    CheckLevel -->|Có| LevelUp[LEVEL UP]
+    CheckLevel -->|Không| ShowExpMsg[Bạn nhận EXP]
+    LevelUp --> ShowLevelMsg[CHÚC MỪNG LÊN CẤP]
+    ShowExpMsg --> UpdateUI
+    ShowLevelMsg --> UpdateUI
+            </pre
+              >
+            </div>
 
-    class transaction_history {
-        +INT transaction_id PK
-        +INT buyer_id FK
-        +INT listing_id FK
-        +DECIMAL amount
-        +NVARCHAR transaction_type
-        +DATETIME transaction_date
-    }
+            <h3>6.2. Thu thập Tài nguyên (Gathering)</h3>
+            <div class="diagram-container">
+              <pre class="mermaid">
+flowchart TD
+    Start([Bắt đầu Thu thập]) --> RedirectFrom[Từ Adventure redirect]
+    RedirectFrom --> LoadPage[Load trang thu thập]
+    LoadPage --> ShowInfo[Hiển thị thông tin]
+    ShowInfo --> CheckEnergy{Đủ 5 Energy?}
+    
+    CheckEnergy -->|Không| ErrorEnergy[Không đủ năng lượng]
+    ErrorEnergy --> End([Kết thúc])
+    
+    CheckEnergy -->|Có| ClickGather[Click Thu thập]
+    ClickGather --> CallAPI[POST /api/gathering/gather]
+    CallAPI --> BeginLogic[Bắt đầu xử lý]
+    BeginLogic --> DeductEnergy[Trừ 5 Energy]
+    DeductEnergy --> RandAmount[Random số lượng]
+    RandAmount --> AddToInventory[Thêm vào inventory]
+    AddToInventory --> CalcExp[Tính EXP gain]
+    CalcExp --> AddSkillExp[Cộng vào skill exp]
+    AddSkillExp --> CheckSkillLevel{Đủ EXP lên cấp?}
+    
+    CheckSkillLevel -->|Có| SkillLevelUp[SKILL LEVEL UP]
+    CheckSkillLevel -->|Không| SkipSkillUp[Giữ nguyên level]
+    SkillLevelUp --> ShowResult[Hiện thông báo level up]
+    SkipSkillUp --> ShowNormalResult[Hiện thông báo thường]
+    ShowResult --> UpdateUI[Cập nhật UI]
+    ShowNormalResult --> UpdateUI
+    UpdateUI --> CanContinue{Còn Energy?}
+    CanContinue -->|Có| ClickGather
+    CanContinue -->|Không| End
+            </pre
+              >
+            </div>
 
-    user "1" --> "1" wallet : owns
-    user "1" --> "0..*" character_game : has
-    user "1" --> "0..*" user_item : owns
-    item "1" --> "0..*" user_item : contained in
-    user "1" --> "0..*" user_quest : performs
-    quest "1" --> "0..*" user_quest : performed by
-    user "1" --> "0..*" market_listing : creates
-    item "1" --> "0..*" market_listing : is listed in
-    market_listing "1" --> "0..1" transaction_history : results in
-    user "1" --> "0..*" transaction_history : initiates
-                    </pre
-            >
+            <h3>6.3. Chiến đấu (Battle)</h3>
+            <div class="diagram-container">
+              <pre class="mermaid">
+flowchart TD
+    Start([Bắt đầu Chiến đấu]) --> LoadBattle[Load battle page]
+    LoadBattle --> InitState[Khởi tạo trạng thái]
+    InitState --> ShowBattle[Hiển thị giao diện]
+    ShowBattle --> ChooseAction{Chọn hành động}
+    
+    ChooseAction -->|Tấn công| CallAttack[POST /api/battle/attack]
+    CallAttack --> CalcPlayerDmg[Tính sát thương Player]
+    CalcPlayerDmg --> DamageEnemy[Trừ HP Enemy]
+    DamageEnemy --> LogPlayerAttack[Log tấn công]
+    LogPlayerAttack --> CheckEnemyDead{Enemy HP <= 0?}
+    
+    CheckEnemyDead -->|Có| Victory[CHIẾN THẮNG]
+    Victory --> RandReward[Random phần thưởng]
+    RandReward --> AddRewards[Cộng EXP và Gold]
+    AddRewards --> ShowVictory[Màn hình thắng]
+    ShowVictory --> End([Kết thúc])
+    
+    CheckEnemyDead -->|Không| EnemyTurn[Lượt Enemy]
+    EnemyTurn --> CalcEnemyDmg[Tính ST Enemy]
+    CalcEnemyDmg --> DamagePlayer[Trừ HP Player]
+    DamagePlayer --> LogEnemyAttack[Log tấn công Enemy]
+    LogEnemyAttack --> CheckPlayerDead{Player HP <= 0?}
+    
+    CheckPlayerDead -->|Có| Defeat[THẤT BẠI]
+    Defeat --> Respawn[Respawn với 1 HP]
+    Respawn --> ShowDefeat[Màn hình thua]
+    ShowDefeat --> End
+    
+    CheckPlayerDead -->|Không| UpdateBattleUI[Cập nhật UI]
+    UpdateBattleUI --> ChooseAction
+    
+    ChooseAction -->|Dùng Potion| ShowPotionList[Hiện danh sách Potion]
+    ShowPotionList --> SelectPotion[Chọn Potion]
+    SelectPotion --> CallUseItem[POST /api/battle/use-item]
+    CallUseItem --> CheckPotionQty{Còn Potion?}
+    CheckPotionQty -->|Không| ErrorNoPotion[Đã hết Potion]
+    ErrorNoPotion --> ChooseAction
+    CheckPotionQty -->|Có| HealPlayer[Hồi HP]
+    HealPlayer --> DeductPotion[Giảm số lượng Potion]
+    DeductPotion --> LogUsePotion[Log dùng Potion]
+    LogUsePotion --> EnemyTurn
+    
+    ChooseAction -->|Bỏ chạy| Flee[Thoát chiến đấu]
+    Flee --> ShowFlee[Bạn đã bỏ chạy]
+    ShowFlee --> End
+            </pre
+              >
+            </div>
+
+            <h3>6.4. Nghỉ ngơi (Rest)</h3>
+            <div class="diagram-container">
+              <pre class="mermaid">
+flowchart TD
+    Start([Bắt đầu Nghỉ ngơi]) --> ClickRest[Click Nghỉ ngơi]
+    ClickRest --> CallAPI[POST /api/minigame/rest]
+    CallAPI --> CheckFull{HP và Energy đã đầy?}
+    
+    CheckFull -->|Có| ShowAlready[Năng lượng đã đầy]
+    ShowAlready --> End([Kết thúc])
+    
+    CheckFull -->|Chưa| CalcRestore[Tính hồi phục]
+    CalcRestore --> RestoreStats[Cộng Energy và HP]
+    RestoreStats --> SaveDB[Lưu vào database]
+    SaveDB --> ShowMsg[Hiện thông báo]
+    ShowMsg --> UpdateUI[Cập nhật UI]
+    UpdateUI --> End
+            </pre
+              >
+            </div>
           </div>
-          <div class="info-box">
-            <h3><i class="fa-solid fa-database"></i> Cấu trúc Database</h3>
-            <p>
-              Sơ đồ lớp thể hiện kiến trúc database của hệ thống với 9 bảng
-              chính và các mối quan hệ:
+
+          <div class="section" id="admin-flow">
+            <h2>7. 👑 Sơ đồ Hoạt động - Quản trị</h2>
+
+            <h3>7.1. Thêm Vật phẩm mới (Admin)</h3>
+            <div class="diagram-container">
+              <pre class="mermaid">
+flowchart TD
+    Start([Bắt đầu Thêm Item]) --> CheckRole{Role = ADMIN?}
+    CheckRole -->|Không| ErrorPerm[Lỗi: Không có quyền]
+    ErrorPerm --> End([Kết thúc])
+    
+    CheckRole -->|Có| OpenForm[Mở form tạo item]
+    OpenForm --> FillData[Điền thông tin item]
+    FillData --> Submit[Nhấn Tạo]
+    Submit --> ValidateData{Dữ liệu hợp lệ?}
+    
+    ValidateData -->|Không| ErrorValid[Lỗi validate]
+    ErrorValid --> FillData
+    
+    ValidateData -->|Có| CallProc[Gọi sp_admin_create_item]
+    CallProc --> InsertItem[INSERT INTO item]
+    InsertItem --> GetItemId[Lấy item_id vừa tạo]
+    GetItemId --> LogAdmin[Ghi admin_log]
+    LogAdmin --> Success[Tạo item thành công]
+    Success --> ReturnId[Trả về item_id]
+    ReturnId --> End
+            </pre
+              >
+            </div>
+
+            <h3>7.2. Tặng Vật phẩm cho Player (Admin)</h3>
+            <div class="diagram-container">
+              <pre class="mermaid">
+flowchart TD
+    Start([Bắt đầu Tặng Item]) --> CheckRole{Role = ADMIN?}
+    CheckRole -->|Không| ErrorPerm[Không có quyền]
+    ErrorPerm --> End([Kết thúc])
+    
+    CheckRole -->|Có| SelectUser[Chọn User nhận quà]
+    SelectUser --> SelectItem[Chọn Item tặng]
+    SelectItem --> InputQty[Nhập số lượng]
+    InputQty --> Submit[Nhấn Tặng]
+    Submit --> CallProc[Gọi sp_admin_grant_item]
+    CallProc --> BeginTrans[BEGIN TRANSACTION]
+    BeginTrans --> CheckUser{User tồn tại?}
+    
+    CheckUser -->|Không| ErrorUser[User không tồn tại]
+    ErrorUser --> Rollback1[ROLLBACK]
+    Rollback1 --> End
+    
+    CheckUser -->|Có| CheckItem{Item tồn tại?}
+    CheckItem -->|Không| ErrorItem[Item không tồn tại]
+    ErrorItem --> Rollback2[ROLLBACK]
+    Rollback2 --> End
+    
+    CheckItem -->|Có| CheckExist{User đã có item?}
+    CheckExist -->|Có| UpdateQty[UPDATE user_item quantity]
+    CheckExist -->|Không| InsertNew[INSERT user_item mới]
+    UpdateQty --> LogTrans[Ghi transaction_history]
+    InsertNew --> LogTrans
+    LogTrans --> LogAdmin[Ghi admin_log]
+    LogAdmin --> Commit[COMMIT]
+    Commit --> Success[Tặng thành công]
+    Success --> End
+            </pre
+              >
+            </div>
+
+            <h3>7.3. Khóa/Mở khóa Tài khoản (Admin)</h3>
+            <div class="diagram-container">
+              <pre class="mermaid">
+flowchart TD
+    Start([Bắt đầu]) --> CheckRole{Role = ADMIN?}
+    CheckRole -->|Không| ErrorPerm[Không có quyền]
+    ErrorPerm --> End([Kết thúc])
+    
+    CheckRole -->|Có| ViewUserList[Xem danh sách User]
+    ViewUserList --> SelectUser[Chọn User]
+    SelectUser --> CheckTarget{Target là Admin?}
+    
+    CheckTarget -->|Có| ErrorAdmin[Không thể khóa Admin]
+    ErrorAdmin --> ViewUserList
+    
+    CheckTarget -->|Không| ChooseAction{Chọn hành động}
+    ChooseAction -->|Khóa| SetInactive[is_active = 0]
+    ChooseAction -->|Mở khóa| SetActive[is_active = 1]
+    
+    SetInactive --> CallProc[Gọi sp_admin_toggle_user_status]
+    SetActive --> CallProc
+    CallProc --> UpdateUser[UPDATE user is_active]
+    UpdateUser --> LogAction[Ghi admin_log]
+    LogAction --> Success[Thành công]
+    Success --> Refresh[Refresh danh sách]
+    Refresh --> End
+            </pre
+              >
+            </div>
+          </div>
+
+          <div class="section" id="mockups">
+            <h2>8. 🎨 Mockup Giao diện</h2>
+
+            <h3>8.1. Trang Đăng nhập</h3>
+            <div class="mockup-container">
+              <div class="mockup-screen">
+                <div class="mockup-header">🔐 Login - EchoMMO</div>
+                <div style="text-align: center; padding: 20px">
+                  <div style="font-size: 3em; margin: 20px 0">🎮</div>
+                  <h2 style="color: #667eea">
+                    Echo<span style="color: #764ba2">MMO</span>
+                  </h2>
+                </div>
+                <div class="mockup-element">
+                  <strong>📝 Username Input</strong>
+                  <p>[Text input field: "Username"]</p>
+                </div>
+                <div class="mockup-element">
+                  <strong>🔑 Password Input</strong>
+                  <p>[Password input field: "Password"]</p>
+                </div>
+                <div class="mockup-element">
+                  <strong>🔘 Button</strong>
+                  <p>[Sign in] - Gradient Purple button</p>
+                </div>
+                <div class="mockup-element">
+                  <strong>🔗 Links</strong>
+                  <p>[Quên mật khẩu?] | [Đăng ký]</p>
+                </div>
+              </div>
+            </div>
+
+            <h3>8.2. Trang Marketplace</h3>
+            <div class="mockup-container">
+              <div class="mockup-screen">
+                <div class="mockup-header">🏪 Marketplace</div>
+                <div class="mockup-element">
+                  <strong>🔍 Bộ lọc</strong>
+                  <p>
+                    [Search: "Tìm kiếm..."] [Category: Dropdown] [Max Price:
+                    Input] [Button: Lọc]
+                  </p>
+                </div>
+                <div
+                  style="
+                    display: grid;
+                    grid-template-columns: 1fr 1fr 1fr;
+                    gap: 10px;
+                    margin: 10px 0;
+                  "
+                >
+                  <div
+                    style="
+                      border: 2px solid #ddd;
+                      padding: 10px;
+                      border-radius: 8px;
+                      text-align: center;
+                    "
+                  >
+                    <div style="font-size: 2em">🗡️</div>
+                    <strong>Kiếm Gỗ</strong>
+                    <p style="color: #999">Common</p>
+                    <p>x1</p>
+                    <p style="color: #f59e0b; font-weight: bold">💰 10.00</p>
+                    <button
+                      style="
+                        background: #10b981;
+                        color: white;
+                        border: none;
+                        padding: 5px 10px;
+                        border-radius: 4px;
+                        cursor: pointer;
+                      "
+                    >
+                      Mua ngay
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section" id="implementation">
+            <h2>9. 🚀 Quy trình Triển khai</h2>
+
+            <h3>9.1. Luồng Phát triển: Database → Backend → Frontend</h3>
+
+            <div class="flow-step">
+              <strong>Bước 1: Thiết kế Database</strong>
+              <p>✅ Tạo ERD, xác định các bảng và mối quan hệ</p>
+              <p>✅ Viết SQL script tạo tables, indexes, constraints</p>
+              <p>✅ Tạo Stored Procedures cho business logic phức tạp</p>
+              <p>✅ Insert dữ liệu mẫu (roles, items, enemies)</p>
+            </div>
+
+            <div class="flow-step">
+              <strong>Bước 2: Tạo Entity Models (JPA)</strong>
+              <p>✅ Tạo class @Entity tương ứng với mỗi bảng</p>
+              <p>✅ Định nghĩa @Id, @GeneratedValue</p>
+              <p>✅ Thiết lập quan hệ @OneToOne, @OneToMany, @ManyToOne</p>
+              <p>✅ Sử dụng Lombok để giảm boilerplate code</p>
+            </div>
+
+            <div class="flow-step">
+              <strong>Bước 3: Implement Service Layer</strong>
+              <p>✅ Viết business logic trong @Service classes</p>
+              <p>✅ Sử dụng @Transactional cho các thao tác phức tạp</p>
+              <p>✅ Gọi Stored Procedures qua EntityManager khi cần</p>
+              <p>✅ Xử lý exceptions và validation</p>
+            </div>
+          </div>
+
+          <div class="section" id="appendix-a">
+            <h2>📎 Phụ lục A: Chi tiết Stored Procedures</h2>
+
+            <h3>A.1. sp_create_player_listing</h3>
+            <div class="info-box">
+              <h4>Mục đích</h4>
+              <p>
+                Tạo niêm yết bán hàng mới từ Player, trừ vật phẩm khỏi inventory
+                và tạo record trong market_listing
+              </p>
+
+              <h4>Parameters</h4>
+              <ul>
+                <li><code>@seller_id INT</code> - ID của người bán</li>
+                <li><code>@item_id INT</code> - ID của vật phẩm</li>
+                <li><code>@quantity INT</code> - Số lượng bán</li>
+                <li><code>@price DECIMAL(18,2)</code> - Giá bán</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section" id="appendix-b">
+            <h2>📎 Phụ lục B: Danh sách API Endpoints</h2>
+
+            <h3>B.1. Authentication APIs</h3>
+            <table>
+              <tr>
+                <th>Method</th>
+                <th>Endpoint</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td><span class="badge badge-get">GET</span></td>
+                <td><code>/login</code></td>
+                <td>Hiển thị trang đăng nhập</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-post">POST</span></td>
+                <td><code>/login</code></td>
+                <td>Xử lý đăng nhập (Spring Security)</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-get">GET</span></td>
+                <td><code>/register</code></td>
+                <td>Hiển thị trang đăng ký</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-post">POST</span></td>
+                <td><code>/register</code></td>
+                <td>Xử lý đăng ký tài khoản mới</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="footer">
+            <h2>🎮 EchoMMO</h2>
+            <p style="color: #666; font-size: 1.1em; margin: 10px 0">
+              GameFi MMO Platform
             </p>
-            <ul>
-              <li><strong>user:</strong> Thông tin người dùng cơ bản.</li>
-              <li>
-                <strong>wallet:</strong> Ví tiền ảo, liên kết 1-1 với user.
-              </li>
-              <li>
-                <strong>character_game:</strong> Các nhân vật mà user sở hữu.
-              </li>
-              <li>
-                <strong>item & user_item:</strong> Bảng định nghĩa vật phẩm và
-                bảng inventory của user.
-              </li>
-              <li>
-                <strong>quest & user_quest:</strong> Bảng định nghĩa nhiệm vụ và
-                bảng tiến trình của user.
-              </li>
-              <li>
-                <strong>market_listing:</strong> Các vật phẩm được đăng bán trên
-                chợ.
-              </li>
-              <li>
-                <strong>transaction_history:</strong> Lịch sử giao dịch mua bán.
-              </li>
-            </ul>
+            <p style="color: #999; margin-top: 20px">
+              © 2025 EchoMMO Project | Tài liệu Phân tích & Thiết kế Hệ thống
+            </p>
+            <p style="color: #999; font-size: 0.9em">
+              Version 1.0.0 | Last Updated: January 2025
+            </p>
           </div>
         </div>
-      </section>
+      </div>
     </div>
-
-    <div class="scroll-top" id="scrollTopBtn">
-      <i class="fa-solid fa-arrow-up"></i>
-    </div>
-
-    <footer>
-      <p><strong>Dự án EchoMMO</strong> - Hệ thống GameFi MMO</p>
-      <p>Tài liệu Phân tích & Thiết kế hệ thống</p>
-    </footer>
 
     <script type="module">
       import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+
       mermaid.initialize({
         startOnLoad: true,
-        theme: "dark",
+        theme: "base",
+        securityLevel: "loose",
+        flowchart: {
+          useMaxWidth: true,
+          htmlLabels: true,
+          curve: "basis",
+        },
         themeVariables: {
-          primaryColor: "#1a1a2e",
-          primaryTextColor: "#f8f9fa",
+          primaryColor: "#667eea",
           primaryBorderColor: "#667eea",
+          secondaryColor: "#764ba2",
+          textColor: "#333",
           lineColor: "#764ba2",
-          secondaryColor: "#302b63",
-          tertiaryColor: "#1a1a2e",
+          mainBkg: "#f8f9fa",
+          nodeBorder: "#667eea",
+          edgeLabelBackground: "#fff",
+          edgeLabelColor: "#667eea",
         },
       });
-    </script>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        // --- Tab System Logic ---
-        const tabs = document.querySelectorAll(".tab");
-        const tabContents = document.querySelectorAll(".tab-content");
-
-        tabs.forEach((tab) => {
-          tab.addEventListener("click", () => {
-            // Remove active class from all tabs and contents
-            tabs.forEach((item) => item.classList.remove("active"));
-            tabContents.forEach((item) => item.classList.remove("active"));
-
-            // Add active class to clicked tab and corresponding content
-            tab.classList.add("active");
-            const target = document.getElementById(tab.dataset.tab);
-            if (target) {
-              target.classList.add("active");
-            }
-          });
+      // Style edge labels sau khi Mermaid render xong
+      setTimeout(() => {
+        const edgeLabels = document.querySelectorAll(".edgeLabel");
+        edgeLabels.forEach((label) => {
+          label.style.background = "linear-gradient(135deg, #667eea, #764ba2)";
+          label.style.color = "white";
+          label.style.padding = "4px 12px";
+          label.style.borderRadius = "12px";
+          label.style.fontSize = "12px";
+          label.style.fontWeight = "600";
+          label.style.boxShadow = "0 2px 4px rgba(0,0,0,0.2)";
         });
+      }, 1000);
 
-        // --- Scroll to Top Button Logic ---
-        const scrollTopBtn = document.getElementById("scrollTopBtn");
-
-        window.addEventListener("scroll", () => {
-          if (window.scrollY > 300) {
-            scrollTopBtn.classList.add("visible");
-          } else {
-            scrollTopBtn.classList.remove("visible");
-          }
-        });
-
-        scrollTopBtn.addEventListener("click", () => {
-          window.scrollTo({
-            top: 0,
-            behavior: "smooth",
-          });
-        });
-
-        // --- Active Nav Link on Scroll ---
-        const sections = document.querySelectorAll(".section");
-        const navLinks = document.querySelectorAll(".nav-links a");
-
-        window.addEventListener("scroll", () => {
-          let current = "";
-          sections.forEach((section) => {
-            const sectionTop = section.offsetTop;
-            if (pageYOffset >= sectionTop - 100) {
-              current = section.getAttribute("id");
-            }
-          });
-
-          navLinks.forEach((a) => {
-            a.classList.remove("active");
-            if (a.getAttribute("href").substring(1) === current) {
-              a.classList.add("active");
-            }
-          });
-        });
+      // Scroll to top button
+      window.addEventListener("scroll", function () {
+        const scrollTop = document.getElementById("scrollTop");
+        if (window.pageYOffset > 300) {
+          scrollTop.classList.add("show");
+        } else {
+          scrollTop.classList.remove("show");
+        }
       });
     </script>
   </body>
